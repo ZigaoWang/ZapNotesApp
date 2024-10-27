@@ -29,7 +29,7 @@ The project is organized into several key components:
 - `FullScreenMediaView.swift`: Full-screen media viewing
 - `AppearanceSettingsView.swift`: Customizable appearance settings
 - `AIManager.swift`: Handles AI-related operations (summarization, image analysis, transcription)
-- Backend code: [GitHub Repo](https://github.com/ZigaoWang/Zap-backend)
+- Backend code: [GitHub Repo](https://github.com/Zap-Notes-App/Zap-backend)
 
 ## For AI or Contributors
 
@@ -94,4 +94,4 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Contact
 
-Contact Zigao Wang at a@zigao.wang, or open an issue: https://github.com/ZigaoWang/Zap/issues
+Contact Zigao Wang at a@zigao.wang, or open an issue: https://github.com/Zap-Notes-App/Zap/issues
