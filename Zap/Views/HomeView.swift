@@ -13,13 +13,12 @@ struct HomeView: View {
     @EnvironmentObject var appearanceManager: AppearanceManager
     @State private var showingSettings = false
     @State private var selectedTab = "All"
-    @State private var isOrganizing = false
     @State private var showingDeleteAlert = false
     @State private var noteToDelete: NoteItem?
     
     let tabs = ["All", "Text", "Audio", "Photo", "Video"]
 
-    private let joystickSize: CGFloat = 160 // Increased from 140
+    private let joystickSize: CGFloat = 160
     private let bottomPadding: CGFloat = 20
     
     var body: some View {
@@ -37,7 +36,6 @@ struct HomeView: View {
                             
                             Text("Zap Notes")
                                 .font(.title2.bold())
-                        
                         }
                         
                         Spacer()
@@ -46,7 +44,7 @@ struct HomeView: View {
                             .font(.subheadline)
                         
                         Button(action: {
-                            organizeAndPlanNotes()
+                            viewModel.organizeAndPlanNotes()
                         }) {
                             Image(systemName: "wand.and.stars")
                                 .foregroundColor(.white)
@@ -55,7 +53,7 @@ struct HomeView: View {
                                 .clipShape(Circle())
                         }
                         .buttonStyle(PlainButtonStyle())
-                        .disabled(isOrganizing)
+                        .disabled(viewModel.isOrganizing)
                         
                         Button(action: {}) {
                             Image(systemName: "magnifyingglass")
@@ -69,6 +67,9 @@ struct HomeView: View {
                     .padding(.horizontal)
                     .padding(.vertical, 12)
                     .background(Color(.systemBackground))
+
+                    Toggle("Show AI Organized Notes", isOn: $viewModel.isShowingAIOrganized)
+                        .padding()
 
                     // Tab bar
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -93,8 +94,8 @@ struct HomeView: View {
 
                     // Notes list
                     ScrollView {
-                        LazyVStack(spacing: 4) { // Reduced spacing between notes
-                            ForEach(filteredNotes) { note in
+                        LazyVStack(spacing: 4) {
+                            ForEach(viewModel.isShowingAIOrganized ? viewModel.aiOrganizedNotes : filteredNotes) { note in
                                 NoteRowView(note: note)
                                     .padding(.horizontal, 16)
                             }
@@ -120,97 +121,77 @@ struct HomeView: View {
             .navigationBarHidden(true)
         }
         .accentColor(appearanceManager.accentColor)
-        .font(.system(size: appearanceManager.fontSizeValue))
-        .environmentObject(viewModel)
-        .sheet(isPresented: $showingSettings) {
-            SettingsView().environmentObject(appearanceManager)
-        }
-        .overlay(
-            Group {
-                if isOrganizing {
-                    ProgressView("Organizing notes...")
-                        .padding()
-                        .background(Color(.systemBackground))
-                        .cornerRadius(10)
-                        .shadow(radius: 10)
+                .font(.system(size: appearanceManager.fontSizeValue))
+                .environmentObject(viewModel)
+                .sheet(isPresented: $showingSettings) {
+                    SettingsView().environmentObject(appearanceManager)
+                }
+                .overlay(
+                    Group {
+                        if viewModel.isOrganizing {
+                            ProgressView("Organizing notes...")
+                                .padding()
+                                .background(Color(.systemBackground))
+                                .cornerRadius(10)
+                                .shadow(radius: 10)
+                        }
+                    }
+                )
+                .sheet(isPresented: $viewModel.showingTextInput) {
+                    TextInputView(content: $viewModel.textInputContent, onSave: {
+                        viewModel.addTextNote(viewModel.textInputContent)
+                        viewModel.textInputContent = ""
+                        viewModel.showingTextInput = false
+                    })
+                }
+                .sheet(isPresented: $viewModel.showingImagePicker) {
+                    ImagePicker(sourceType: .photoLibrary) { image in
+                        viewModel.handleCapturedImage(image)
+                    }
+                }
+                .sheet(isPresented: $viewModel.showingCamera) {
+                    ImagePicker(sourceType: .camera) { image in
+                        viewModel.handleCapturedImage(image)
+                    }
+                }
+                .sheet(isPresented: $viewModel.showingVideoRecorder) {
+                    VideoPicker { videoURL in
+                        viewModel.handleCapturedVideo(videoURL)
+                    }
+                }
+                .alert(item: $viewModel.errorMessage) { errorMessage in
+                    Alert(title: Text("Error"), message: Text(errorMessage.message), dismissButton: .default(Text("OK")))
                 }
             }
-        )
-        .sheet(isPresented: $viewModel.showingTextInput) {
-            TextInputView(content: $viewModel.textInputContent, onSave: {
-                viewModel.addTextNote(viewModel.textInputContent)
-                viewModel.textInputContent = ""
-                viewModel.showingTextInput = false
-            })
-        }
-        .sheet(isPresented: $viewModel.showingImagePicker) {
-            ImagePicker(sourceType: .photoLibrary) { image in
-                viewModel.handleCapturedImage(image)
-            }
-        }
-        .sheet(isPresented: $viewModel.showingCamera) {
-            ImagePicker(sourceType: .camera) { image in
-                viewModel.handleCapturedImage(image)
-            }
-        }
-        .sheet(isPresented: $viewModel.showingVideoRecorder) {
-            VideoPicker { videoURL in
-                viewModel.handleCapturedVideo(videoURL)
-            }
-        }
-    }
-    
-    private var filteredNotes: [NoteItem] {
-        switch selectedTab {
-        case "All":
-            return viewModel.notes
-        case "Text":
-            return viewModel.notes.filter { if case .text = $0.type { return true } else { return false } }
-        case "Audio":
-            return viewModel.notes.filter { if case .audio = $0.type { return true } else { return false } }
-        case "Photo":
-            return viewModel.notes.filter { if case .photo = $0.type { return true } else { return false } }
-        case "Video":
-            return viewModel.notes.filter { if case .video = $0.type { return true } else { return false } }
-        default:
-            return viewModel.notes
-        }
-    }
-
-    private func formattedDate() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy"
-        return formatter.string(from: Date())
-    }
-
-    private func organizeAndPlanNotes() {
-        isOrganizing = true
-        Task {
-            do {
-                let organizedNotes = try await AIManager.shared.organizeAndPlanNotes(viewModel.notes)
-                await MainActor.run {
-                    viewModel.notes = organizedNotes + viewModel.notes
-                    isOrganizing = false
-                }
-            } catch {
-                print("Error organizing notes: \(error)")
-                await MainActor.run {
-                    isOrganizing = false
+            
+            private var filteredNotes: [NoteItem] {
+                let notesToFilter = viewModel.isShowingAIOrganized ? viewModel.aiOrganizedNotes : viewModel.notes
+                switch selectedTab {
+                case "All":
+                    return notesToFilter
+                case "Text":
+                    return notesToFilter.filter { if case .text = $0.type { return true } else { return false } }
+                case "Audio":
+                    return notesToFilter.filter { if case .audio = $0.type { return true } else { return false } }
+                case "Photo":
+                    return notesToFilter.filter { if case .photo = $0.type { return true } else { return false } }
+                case "Video":
+                    return notesToFilter.filter { if case .video = $0.type { return true } else { return false } }
+                default:
+                    return notesToFilter
                 }
             }
-        }
-    }
 
-    private func deleteNotes(at offsets: IndexSet) {
-        for index in offsets {
-            let noteToDelete = filteredNotes[index]
-            self.noteToDelete = noteToDelete
-            showingDeleteAlert = true
+            private func formattedDate() -> String {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "MMM d, yyyy"
+                return formatter.string(from: Date())
+            }
         }
-    }
-}
 
-struct AlertItem: Identifiable {
-    let id = UUID()
-    let message: String
-}
+        struct HomeView_Previews: PreviewProvider {
+            static var previews: some View {
+                HomeView()
+                    .environmentObject(AppearanceManager())
+            }
+        }

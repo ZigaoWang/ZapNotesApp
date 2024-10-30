@@ -14,16 +14,19 @@ import Foundation
 
 class NotesViewModel: ObservableObject {
     @Published var notes: [NoteItem] = []
+    @Published var aiOrganizedNotes: [NoteItem] = []
+    @Published var isShowingAIOrganized = false
     @Published var isRecording = false
     @Published var isSummarizing = false
     @Published var summary: String = ""
-    @Published var errorMessage: String? = nil
+    @Published var errorMessage: ErrorMessage?
     @Published var showingTextInput = false
     @Published var textInputContent = ""
     @Published var showingImagePicker = false
     @Published var showingCamera = false
     @Published var showingVideoRecorder = false
     @Published var isOrganizing = false
+    @Published var organizationProgress: Double = 0
     
     private var audioRecorder: AVAudioRecorder?
     private var audioFileURL: URL?
@@ -34,6 +37,7 @@ class NotesViewModel: ObservableObject {
     
     init() {
         loadNotes()
+        loadAIOrganizedNotes()
         setupAudioSession()
     }
     
@@ -198,6 +202,27 @@ class NotesViewModel: ObservableObject {
         }
     }
     
+    private func saveAIOrganizedNotes() {
+        do {
+            let data = try JSONEncoder().encode(aiOrganizedNotes)
+            try data.write(to: getDocumentsDirectory().appendingPathComponent("ai_organized_notes.json"))
+        } catch {
+            print("Unable to save AI organized notes: \(error)")
+        }
+    }
+
+    private func loadAIOrganizedNotes() {
+        let url = getDocumentsDirectory().appendingPathComponent("ai_organized_notes.json")
+        
+        guard let data = try? Data(contentsOf: url) else { return }
+        
+        do {
+            aiOrganizedNotes = try JSONDecoder().decode([NoteItem].self, from: data)
+        } catch {
+            print("Unable to load AI organized notes: \(error)")
+        }
+    }
+    
     // MARK: - Helpers
     
     private func getDocumentsDirectory() -> URL {
@@ -232,7 +257,7 @@ class NotesViewModel: ObservableObject {
                 }
             } catch {
                 await MainActor.run {
-                    self.errorMessage = "Failed to generate summary: \(error.localizedDescription)"
+                    self.errorMessage = ErrorMessage(message: "Failed to generate summary: \(error.localizedDescription)")
                     self.isSummarizing = false
                 }
             }
@@ -280,22 +305,24 @@ class NotesViewModel: ObservableObject {
     }
     
     func organizeAndPlanNotes() {
+        isOrganizing = true
+        organizationProgress = 0
+
         Task {
             do {
-                self.isOrganizing = true
-                self.errorMessage = nil
                 let organizedNotes = try await AIManager.shared.organizeAndPlanNotes(notes)
                 await MainActor.run {
-                    let organizedNoteIds = Set(organizedNotes.map { $0.id })
-                    let unorganizedNotes = self.notes.filter { !organizedNoteIds.contains($0.id) }
-                    self.notes = organizedNotes + unorganizedNotes
-                    saveNotes()
-                    self.isOrganizing = false
+                    self.aiOrganizedNotes = organizedNotes
+                    saveAIOrganizedNotes()
+                    isOrganizing = false
+                    organizationProgress = 1.0
+                    isShowingAIOrganized = true
                 }
             } catch {
                 await MainActor.run {
-                    self.errorMessage = "Failed to organize notes: \(error.localizedDescription)"
-                    self.isOrganizing = false
+                    self.errorMessage = ErrorMessage(message: "Failed to organize notes: \(error.localizedDescription)")
+                    isOrganizing = false
+                    organizationProgress = 0
                 }
             }
         }
@@ -307,4 +334,9 @@ class NotesViewModel: ObservableObject {
             saveNotes()
         }
     }
+}
+
+struct ErrorMessage: Identifiable {
+    let id = UUID()
+    let message: String
 }

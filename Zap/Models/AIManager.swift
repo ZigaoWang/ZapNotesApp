@@ -51,6 +51,55 @@ class AIManager {
         return try await sendSummarizationRequest(messages: messages)
     }
     
+    func organizeAndPlanNotes(_ notes: [NoteItem]) async throws -> [NoteItem] {
+        let chunkSize = 10 // Process notes in chunks of 10
+        var organizedNotes: [NoteItem] = []
+
+        for i in stride(from: 0, to: notes.count, by: chunkSize) {
+            let chunk = Array(notes[i..<min(i + chunkSize, notes.count)])
+            let organizedChunk = try await organizeChunk(chunk)
+            organizedNotes.append(contentsOf: organizedChunk)
+        }
+
+        return organizedNotes
+    }
+
+    private func organizeChunk(_ notes: [NoteItem]) async throws -> [NoteItem] {
+        var messages: [[String: Any]] = [
+            ["role": "system", "content": """
+            You are an AI assistant that organizes and plans notes. Analyze the following notes, summarize them, and create a simple, actionable list of tasks or points. Use the same language as the input.
+            Format your response as a JSON array of objects, where each object represents a note with the following structure:
+            {
+                "content": "The content of the note"
+            }
+            Keep each note concise and actionable.
+            """]
+        ]
+
+        for note in notes {
+            switch note.type {
+            case .text(let content):
+                messages.append(["role": "user", "content": content])
+            case .photo(let fileName):
+                if let image = loadImage(fileName: fileName),
+                   let description = try await analyzeImage(image) {
+                    messages.append(["role": "user", "content": "Image: \(description)"])
+                }
+            case .video(let fileName, _):
+                messages.append(["role": "user", "content": "Video: \(fileName)"])
+            case .audio(_, _):
+                if let transcription = note.transcription {
+                    messages.append(["role": "user", "content": "Audio: \(transcription)"])
+                }
+            }
+        }
+
+        messages.append(["role": "user", "content": "Please analyze these notes, summarize them, and create a simple, actionable list of tasks or points in the specified JSON format."])
+
+        let organizedContent = try await sendOrganizationRequest(messages: messages)
+        return convertJSONToNoteItems(organizedContent)
+    }
+    
     private func analyzeImage(_ image: UIImage) async throws -> String? {
         guard let imageData = compressImage(image) else {
             print("Failed to compress image")
@@ -214,44 +263,7 @@ class AIManager {
         }
     }
     
-    func organizeAndPlanNotes(_ notes: [NoteItem]) async throws -> [NoteItem] {
-        var messages: [[String: Any]] = [
-            ["role": "system", "content": """
-            You are an AI assistant that organizes and plans notes. Analyze the following notes, summarize them, and create a simple, actionable list of tasks or points. Use the same language as the input.
-            Format your response as a JSON array of objects, where each object represents a note with the following structure:
-            {
-                "content": "The content of the note"
-            }
-            Keep each note concise and actionable.
-            """]
-        ]
-        
-        for note in notes {
-            switch note.type {
-            case .text(let content):
-                messages.append(["role": "user", "content": content])
-            case .photo(let fileName):
-                if let image = loadImage(fileName: fileName),
-                   let description = try await analyzeImage(image) {
-                    messages.append(["role": "user", "content": "Image: \(description)"])
-                }
-            case .video(let fileName, _):
-                messages.append(["role": "user", "content": "Video: \(fileName)"])
-            case .audio(_, _):
-                if let transcription = note.transcription {
-                    messages.append(["role": "user", "content": "Audio: \(transcription)"])
-                }
-            }
-        }
-        
-        messages.append(["role": "user", "content": "Please analyze these notes, summarize them, and create a simple, actionable list of tasks or points in the specified JSON format."])
-        
-        let organizedContent = try await sendOrganizationRequest(messages: messages)
-        return convertJSONToNoteItems(organizedContent)
-    }
-    
     private func sendOrganizationRequest(messages: [[String: Any]]) async throws -> String {
-        // Similar to sendSummarizationRequest, but use a more capable model if available
         var request = URLRequest(url: apiBaseURL.appendingPathComponent("chat"))
         request.httpMethod = "POST"
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
