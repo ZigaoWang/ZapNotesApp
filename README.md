@@ -2,6 +2,11 @@
 
 Zap is an AI-powered note-taking application that allows users to quickly record and analyze their thoughts, ideas, and tasks using text, voice, and photos. With advanced AI capabilities for smart summarization, image analysis, and audio transcription, Zap provides a more convenient and efficient recording experience.
 
+## Demo Video
+
+https://github.com/user-attachments/assets/2e0aa81f-5dff-4b64-8a88-0de32c48b56c
+
+
 ## Features
 
 - Multi-modal input: Text, voice, and photo capture
