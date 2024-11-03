@@ -38,8 +38,10 @@
 				ImageCache.swift,
 				ImageFullscreenView.swift,
 				ImagePicker.swift,
+				LoginView.swift,
 				NoteRowView.swift,
 				PrivacyPolicyView.swift,
+				RegisterView.swift,
 				SavedNotesView.swift,
 				SettingsView.swift,
 				TermsOfServiceView.swift,
@@ -56,6 +58,7 @@
 			membershipExceptions = (
 				AIManager.swift,
 				AppearanceManager.swift,
+				AuthManager.swift,
 				NoteItem.swift,
 				NotesViewModel.swift,
 				SharedComponents.swift,

@@ -8,21 +8,22 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var viewModel = NotesViewModel()
-    @StateObject var appearanceManager = AppearanceManager()
-
+    @StateObject private var authManager = AuthManager.shared
+    @StateObject private var appearanceManager = AppearanceManager()
+    
     var body: some View {
-        HomeView()
-            .environmentObject(viewModel)
-            .environmentObject(appearanceManager)
-            .environment(\.customFontSize, appearanceManager.fontSizeValue)
-            .preferredColorScheme(appearanceManager.colorScheme)
-            .accentColor(appearanceManager.accentColor)
-            .onAppear {
-                // Ensure accent color is set correctly
-                if let color = Color(hex: appearanceManager.accentColorString) {
-                    appearanceManager.setAccentColor(color)
-                }
+        Group {
+            if authManager.isAuthenticated {
+                HomeView()
+                    .environmentObject(authManager)
+                    .environmentObject(appearanceManager)
+            } else {
+                LoginView()
+                    .environmentObject(authManager)
             }
+        }
+        .environment(\.customFontSize, appearanceManager.fontSizeValue)
+        .preferredColorScheme(appearanceManager.colorScheme)
+        .accentColor(appearanceManager.accentColor)
     }
 }

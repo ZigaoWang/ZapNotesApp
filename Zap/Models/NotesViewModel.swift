@@ -5,12 +5,12 @@
 //  Created by Zigao Wang on 9/21/24.
 //
 
+import Foundation
 import SwiftUI
 import AVFoundation
 import Speech
 import NaturalLanguage
 import Photos
-import Foundation
 
 class NotesViewModel: ObservableObject {
     @Published var notes: [NoteItem] = []
@@ -31,6 +31,8 @@ class NotesViewModel: ObservableObject {
         Locale(identifier: "en-US"),
         Locale(identifier: "zh-Hans")
     ]
+    
+    private let authManager = AuthManager.shared
     
     init() {
         loadNotes()
@@ -53,14 +55,15 @@ class NotesViewModel: ObservableObject {
         let newNote = NoteItem(type: .text(text))
         notes.insert(newNote, at: 0)
         saveNotes()
+        autoSync()
     }
     
     func addAudioNote(fileName: String, duration: TimeInterval) {
         let newNote = NoteItem(type: .audio(fileName, duration))
         notes.insert(newNote, at: 0)
         saveNotes()
+        autoSync()
         
-        // Start transcription asynchronously
         Task {
             await transcribeAudioNote(newNote)
         }
@@ -70,30 +73,35 @@ class NotesViewModel: ObservableObject {
         let newNote = NoteItem(type: .photo(fileName))
         notes.insert(newNote, at: 0)
         saveNotes()
+        autoSync()
     }
     
     func addVideoNote(fileName: String, duration: TimeInterval) {
         let newNote = NoteItem(type: .video(fileName, duration))
         notes.insert(newNote, at: 0)
         saveNotes()
+        autoSync()
     }
     
     func toggleNoteCompletion(_ note: NoteItem) {
         if let index = notes.firstIndex(where: { $0.id == note.id }) {
             notes[index].isCompleted.toggle()
             saveNotes()
+            autoSync()
         }
     }
     
     func deleteNotes(at offsets: IndexSet) {
         notes.remove(atOffsets: offsets)
         saveNotes()
+        autoSync()
     }
     
     func updateTranscription(for note: NoteItem, with transcription: String) {
         if let index = notes.firstIndex(where: { $0.id == note.id }) {
             notes[index].transcription = transcription
             saveNotes()
+            autoSync()
         }
     }
     
@@ -127,11 +135,6 @@ class NotesViewModel: ObservableObject {
             let asset = AVAsset(url: audioURL)
             let duration = asset.duration.seconds
             addAudioNote(fileName: audioURL.lastPathComponent, duration: duration)
-            
-            // Start transcription asynchronously
-            Task {
-                await transcribeAudioNote(NoteItem(type: .audio(audioURL.lastPathComponent, duration)))
-            }
         }
         
         audioRecorder = nil
@@ -150,6 +153,7 @@ class NotesViewModel: ObservableObject {
                 if let index = notes.firstIndex(where: { $0.id == note.id }) {
                     notes[index].transcription = transcription
                     saveNotes()
+                    autoSync()
                 }
             }
         } catch {
@@ -208,6 +212,7 @@ class NotesViewModel: ObservableObject {
         if let index = notes.firstIndex(where: { $0.id == note.id }) {
             notes[index].type = .text(newText)
             saveNotes()
+            autoSync()
         }
     }
 
@@ -215,6 +220,7 @@ class NotesViewModel: ObservableObject {
         if let index = notes.firstIndex(where: { $0.id == note.id }) {
             notes[index].transcription = newTranscription
             saveNotes()
+            autoSync()
         }
     }
     
@@ -242,6 +248,7 @@ class NotesViewModel: ObservableObject {
     func deleteNote(_ note: NoteItem) {
         notes.removeAll { $0.id == note.id }
         saveNotes()
+        autoSync()
     }
     
     func capturePhoto() {
@@ -290,6 +297,7 @@ class NotesViewModel: ObservableObject {
                     let unorganizedNotes = self.notes.filter { !organizedNoteIds.contains($0.id) }
                     self.notes = organizedNotes + unorganizedNotes
                     saveNotes()
+                    autoSync()
                     self.isOrganizing = false
                 }
             } catch {
@@ -305,6 +313,50 @@ class NotesViewModel: ObservableObject {
         if let index = notes.firstIndex(where: { $0.id == updatedNote.id }) {
             notes[index] = updatedNote
             saveNotes()
+            autoSync()
         }
+    }
+    
+    // MARK: - Sync
+    
+    func syncNotes() async throws {
+        guard let user = authManager.currentUser else { throw SyncError.notAuthenticated }
+        
+        var request = URLRequest(url: authManager.baseURL.appendingPathComponent("/notes/sync"))
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(user.id)", forHTTPHeaderField: "Authorization")
+        
+        let notesData = try JSONEncoder().encode(notes)
+        request.httpBody = notesData
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw SyncError.syncFailed
+        }
+        
+        let serverNotes = try JSONDecoder().decode([NoteItem].self, from: data)
+        
+        await MainActor.run {
+            self.notes = serverNotes
+            self.saveNotes()
+        }
+    }
+    
+    private func autoSync() {
+        Task {
+            do {
+                try await syncNotes()
+            } catch {
+                print("Auto-sync failed: \(error)")
+            }
+        }
+    }
+    
+    enum SyncError: Error {
+        case syncFailed
+        case notAuthenticated
     }
 }

@@ -10,6 +10,7 @@ import AVFoundation
 
 struct HomeView: View {
     @StateObject var viewModel = NotesViewModel()
+    @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var appearanceManager: AppearanceManager
     @State private var showingSettings = false
     @State private var selectedTab = "All"
@@ -19,7 +20,7 @@ struct HomeView: View {
     
     let tabs = ["All", "Text", "Audio", "Photo", "Video"]
 
-    private let joystickSize: CGFloat = 160 // Increased from 140
+    private let joystickSize: CGFloat = 160
     private let bottomPadding: CGFloat = 20
     
     var body: some View {
@@ -37,7 +38,6 @@ struct HomeView: View {
                             
                             Text("Zap Notes")
                                 .font(.title2.bold())
-                        
                         }
                         
                         Spacer()
@@ -93,7 +93,7 @@ struct HomeView: View {
 
                     // Notes list
                     ScrollView {
-                        LazyVStack(spacing: 4) { // Reduced spacing between notes
+                        LazyVStack(spacing: 4) {
                             ForEach(filteredNotes) { note in
                                 NoteRowView(note: note)
                                     .padding(.horizontal, 16)
@@ -187,30 +187,12 @@ struct HomeView: View {
         isOrganizing = true
         Task {
             do {
-                let organizedNotes = try await AIManager.shared.organizeAndPlanNotes(viewModel.notes)
-                await MainActor.run {
-                    viewModel.notes = organizedNotes + viewModel.notes
-                    isOrganizing = false
-                }
+                await viewModel.organizeAndPlanNotes()
+                isOrganizing = false
             } catch {
                 print("Error organizing notes: \(error)")
-                await MainActor.run {
-                    isOrganizing = false
-                }
+                isOrganizing = false
             }
         }
     }
-
-    private func deleteNotes(at offsets: IndexSet) {
-        for index in offsets {
-            let noteToDelete = filteredNotes[index]
-            self.noteToDelete = noteToDelete
-            showingDeleteAlert = true
-        }
-    }
-}
-
-struct AlertItem: Identifiable {
-    let id = UUID()
-    let message: String
 }
