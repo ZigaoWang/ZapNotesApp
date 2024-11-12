@@ -43,9 +43,9 @@ struct CommandButton: View {
         ZStack {
             // White background
             Circle()
-                .fill(Color.white)
+                .fill(Color(uiColor: .systemBackground))
                 .frame(width: outerCircleSize, height: outerCircleSize)
-                .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                .shadow(color: Color.primary.opacity(0.1), radius: 5, x: 0, y: 2)
             
             Circle()
                 .fill(Color.secondary.opacity(0.2))
@@ -108,7 +108,7 @@ struct CommandButton: View {
                     y: sin(angle * .pi / 180) * outerCircleSize / 2.8)
             .background(
                 Circle()
-                    .fill(Color.white.opacity(0.1))
+                    .fill(Color(uiColor: .systemBackground).opacity(0.1))
                     .frame(width: 45, height: 45)
             )
     }
