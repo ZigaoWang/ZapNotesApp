@@ -13,21 +13,17 @@ import AVFoundation
 
 class AIManager {
     static let shared = AIManager()
-    private let apiKey: String
     private let apiBaseURL = URL(string: "https://api.zap.zigao.wang/api/openai")!
-    
+
     private init() {
-        guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
-            fatalError("OpenAI API Key not set in environment variables")
-        }
-        self.apiKey = apiKey
+        // No need for API key in the frontend
     }
-    
+
     func summarizeNotes(_ notes: [NoteItem]) async throws -> String {
         var messages: [[String: Any]] = [
             ["role": "system", "content": "简明扼要地总结以下笔记。请使用与输入相同的语言回复。"]
         ]
-        
+
         for note in notes {
             switch note.type {
             case .text(let content):
@@ -45,7 +41,7 @@ class AIManager {
                 }
             }
         }
-        
+
         messages.append(["role": "user", "content": "请简要总结这些笔记的主要内容。"])
         
         return try await sendSummarizationRequest(messages: messages)
@@ -60,7 +56,6 @@ class AIManager {
         let boundary = UUID().uuidString
         var request = URLRequest(url: apiBaseURL.appendingPathComponent("process-notes"))
         request.httpMethod = "POST"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         
         var body = Data()
@@ -125,11 +120,9 @@ class AIManager {
     private func sendSummarizationRequest(messages: [[String: Any]]) async throws -> String {
         var request = URLRequest(url: apiBaseURL.appendingPathComponent("chat"))
         request.httpMethod = "POST"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let requestBody: [String: Any] = [
-            "model": "gpt-4o-mini",
             "messages": messages,
             "max_tokens": 500
         ]
@@ -176,7 +169,6 @@ class AIManager {
         let boundary = UUID().uuidString
         var request = URLRequest(url: apiBaseURL.appendingPathComponent("transcribe"))
         request.httpMethod = "POST"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         
         var body = Data()
@@ -222,7 +214,7 @@ class AIManager {
             {
                 "content": "The content of the note"
             }
-            Keep each note concise and actionable.
+            Keep each note concise and actionable. Make sure your response is valid JSON and contains only the data requested. Don't respond in other format.
             """]
         ]
         
@@ -251,14 +243,11 @@ class AIManager {
     }
     
     private func sendOrganizationRequest(messages: [[String: Any]]) async throws -> String {
-        // Similar to sendSummarizationRequest, but use a more capable model if available
         var request = URLRequest(url: apiBaseURL.appendingPathComponent("chat"))
         request.httpMethod = "POST"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let requestBody: [String: Any] = [
-            "model": "gpt-4", // Use a more capable model if available
             "messages": messages,
             "max_tokens": 1000 // Increase token limit for more detailed responses
         ]
