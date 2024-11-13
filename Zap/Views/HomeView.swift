@@ -36,8 +36,7 @@ struct HomeView: View {
                                 .cornerRadius(6)
                             
                             Text("Zap Notes")
-                                .font(.title2.bold())
-                        
+                                .font(.headline.bold())
                         }
                         
                         Spacer()
