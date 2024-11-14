@@ -98,7 +98,7 @@ struct HomeView: View {
                                     .frame(width: geometry.size.width, height: geometry.size.height)
                                     .offset(y: geometry.size.height / 2.5)
                             }
-                            .frame(height: UIScreen.main.bounds.height - 550)
+                            .frame(height: UIScreen.main.bounds.height - 580)
                         } else {
                             LazyVStack(spacing: 4) {
                                 ForEach(filteredNotes) { note in
