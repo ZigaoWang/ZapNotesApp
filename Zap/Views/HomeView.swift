@@ -90,15 +90,24 @@ struct HomeView: View {
                     .padding(.vertical, 8)
                     .background(Color(.systemBackground))
 
-                    // Notes list
+                    // Notes list with empty state
                     ScrollView {
-                        LazyVStack(spacing: 4) { // Reduced spacing between notes
-                            ForEach(filteredNotes) { note in
-                                NoteRowView(note: note)
-                                    .padding(.horizontal, 16)
+                        if filteredNotes.isEmpty {
+                            GeometryReader { geometry in
+                                EmptyStateView()
+                                    .frame(width: geometry.size.width, height: geometry.size.height)
+                                    .offset(y: geometry.size.height / 2.5)
                             }
+                            .frame(height: UIScreen.main.bounds.height - 550)
+                        } else {
+                            LazyVStack(spacing: 4) {
+                                ForEach(filteredNotes) { note in
+                                    NoteRowView(note: note)
+                                        .padding(.horizontal, 16)
+                                }
+                            }
+                            .padding(.bottom, joystickSize + bottomPadding * 2)
                         }
-                        .padding(.bottom, joystickSize + bottomPadding * 2)
                     }
                 }
                 
@@ -132,6 +141,13 @@ struct HomeView: View {
                         .background(Color(.systemBackground))
                         .cornerRadius(10)
                         .shadow(radius: 10)
+                } else if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                        .padding()
+                        .background(Color(.systemBackground))
+                        .cornerRadius(10)
+                        .shadow(radius: 10)
+                        .transition(.opacity)
                 }
             }
         )
@@ -183,6 +199,20 @@ struct HomeView: View {
     }
 
     private func organizeAndPlanNotes() {
+        if viewModel.notes.isEmpty {
+            // Show a temporary alert or message when there are no notes
+            withAnimation {
+                viewModel.errorMessage = "No notes to organize. Add some notes first!"
+            }
+            // Hide the message after a delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                withAnimation {
+                    viewModel.errorMessage = nil
+                }
+            }
+            return
+        }
+        
         isOrganizing = true
         Task {
             do {
@@ -212,4 +242,28 @@ struct HomeView: View {
 struct AlertItem: Identifiable {
     let id = UUID()
     let message: String
+}
+
+// Add this new view
+struct EmptyStateView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "note.text")
+                .font(.system(size: 60))
+                .foregroundColor(.gray)
+            
+            Text("No Notes Yet")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+            
+            Text("Start by adding your first note using the button below")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
 }
