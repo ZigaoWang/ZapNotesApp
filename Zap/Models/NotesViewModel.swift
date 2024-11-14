@@ -177,24 +177,38 @@ class NotesViewModel: ObservableObject {
     
     // MARK: - Data Persistence
     
-    private func saveNotes() {
+    func saveNotes() {
         do {
             let data = try JSONEncoder().encode(notes)
-            try data.write(to: getDocumentsDirectory().appendingPathComponent("notes.json"))
+            // Save to file
+            let url = getDocumentsDirectory().appendingPathComponent("notes.json")
+            try data.write(to: url)
+            
+            // Also save to UserDefaults as backup
+            UserDefaults.standard.set(data, forKey: "notes")
         } catch {
-            print("Unable to save notes: \(error)")
+            print("Error saving notes: \(error)")
         }
     }
     
     private func loadNotes() {
         let url = getDocumentsDirectory().appendingPathComponent("notes.json")
         
-        guard let data = try? Data(contentsOf: url) else { return }
-        
         do {
-            notes = try JSONDecoder().decode([NoteItem].self, from: data)
+            // Try loading from file first
+            if let data = try? Data(contentsOf: url) {
+                notes = try JSONDecoder().decode([NoteItem].self, from: data)
+                return
+            }
+            
+            // If file doesn't exist, try UserDefaults
+            if let data = UserDefaults.standard.data(forKey: "notes") {
+                notes = try JSONDecoder().decode([NoteItem].self, from: data)
+                return
+            }
         } catch {
-            print("Unable to load notes: \(error)")
+            print("Error loading notes: \(error)")
+            notes = [] // Initialize empty array if loading fails
         }
     }
     
@@ -286,10 +300,8 @@ class NotesViewModel: ObservableObject {
                 self.errorMessage = nil
                 let organizedNotes = try await AIManager.shared.organizeAndPlanNotes(notes)
                 await MainActor.run {
-                    let organizedNoteIds = Set(organizedNotes.map { $0.id })
-                    let unorganizedNotes = self.notes.filter { !organizedNoteIds.contains($0.id) }
-                    self.notes = organizedNotes + unorganizedNotes
-                    saveNotes()
+                    self.notes = organizedNotes // Replace existing notes
+                    saveNotes() // Save immediately after updating
                     self.isOrganizing = false
                 }
             } catch {

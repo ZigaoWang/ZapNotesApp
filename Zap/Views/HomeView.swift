@@ -219,6 +219,7 @@ struct HomeView: View {
                 let organizedNotes = try await AIManager.shared.organizeAndPlanNotes(viewModel.notes)
                 await MainActor.run {
                     viewModel.notes = organizedNotes + viewModel.notes
+                    viewModel.saveNotes()
                     isOrganizing = false
                 }
             } catch {
