@@ -218,7 +218,8 @@ struct HomeView: View {
             do {
                 let organizedNotes = try await AIManager.shared.organizeAndPlanNotes(viewModel.notes)
                 await MainActor.run {
-                    viewModel.notes = organizedNotes + viewModel.notes
+                    // Replace existing notes with organized notes
+                    viewModel.notes = organizedNotes
                     viewModel.saveNotes()
                     isOrganizing = false
                 }
