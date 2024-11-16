@@ -41,6 +41,11 @@ struct AudioNoteView: View {
             }
             .padding()
 
+            if viewModel.isTranscribing {
+                ProgressView("Transcribing...")
+                    .padding()
+            }
+
             Spacer()
         }
         .navigationTitle("New Audio Note")

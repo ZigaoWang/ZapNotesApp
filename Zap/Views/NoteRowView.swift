@@ -16,63 +16,77 @@ struct NoteRowView: View {
     @State private var showFullScreen = false
     @State private var isEditing = false
     @State private var editedContent = ""
-    
+
     var body: some View {
-        HStack(spacing: 12) {
-            completionButton
-            
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    noteTypeIcon
-                    Text(note.timestamp, style: .time)
-                        .font(.caption)
+        ZStack {
+            HStack(spacing: 12) {
+                completionButton
+
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        noteTypeIcon
+                        Text(note.timestamp, style: .time)
+                            .font(.caption)
+                            .foregroundColor(.white)
+                        Spacer()
+                        editButton
+                        deleteButton
+                    }
+
+                    if isEditing {
+                        TextField("Edit note", text: $editedContent)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .foregroundColor(.black)
+                            .onSubmit {
+                                saveEdits()
+                                isEditing = false
+                            }
+                    } else {
+                        noteContent
+                    }
+                }
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
+            .background(noteBackgroundColor)
+            .cornerRadius(16)
+            .shadow(color: noteBackgroundColor.opacity(0.3), radius: 5, x: 0, y: 3)
+            .opacity(note.isCompleted ? 0.7 : 1)
+            .padding(.vertical, 6)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0), value: note.isCompleted)
+            .fullScreenCover(isPresented: $showFullScreen) {
+                FullScreenMediaView(note: note, isPresented: $showFullScreen)
+            }
+            .swipeActions(edge: .leading) {
+                Button {
+                    viewModel.toggleNoteCompletion(note)
+                } label: {
+                    Label(note.isCompleted ? "Uncomplete" : "Complete", systemImage: note.isCompleted ? "xmark.circle" : "checkmark.circle")
+                }
+                .tint(note.isCompleted ? .orange : .green)
+            }
+            .swipeActions(edge: .trailing) {
+                Button(role: .destructive) {
+                    viewModel.deleteNote(note)
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+
+            // Transcribing Indicator
+            if note.isTranscribing {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .cornerRadius(16)
+                        .frame(height: 80)
+                    ProgressView("Transcribing...")
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         .foregroundColor(.white)
-                    Spacer()
-                    editButton
-                    deleteButton
                 }
-                
-                if isEditing {
-                    TextField("Edit note", text: $editedContent)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .foregroundColor(.black)
-                        .onSubmit {
-                            saveEdits()
-                            isEditing = false
-                        }
-                } else {
-                    noteContent
-                }
-            }
-        }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
-        .background(noteBackgroundColor)
-        .cornerRadius(16)
-        .shadow(color: noteBackgroundColor.opacity(0.3), radius: 5, x: 0, y: 3)
-        .opacity(note.isCompleted ? 0.7 : 1)
-        .padding(.vertical, 6)
-        .animation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0), value: note.isCompleted)
-        .fullScreenCover(isPresented: $showFullScreen) {
-            FullScreenMediaView(note: note, isPresented: $showFullScreen)
-        }
-        .swipeActions(edge: .leading) {
-            Button {
-                viewModel.toggleNoteCompletion(note)
-            } label: {
-                Label(note.isCompleted ? "Uncomplete" : "Complete", systemImage: note.isCompleted ? "xmark.circle" : "checkmark.circle")
-            }
-            .tint(note.isCompleted ? .orange : .green)
-        }
-        .swipeActions(edge: .trailing) {
-            Button(role: .destructive) {
-                viewModel.deleteNote(note)
-            } label: {
-                Label("Delete", systemImage: "trash")
             }
         }
     }
-    
+
     private var completionButton: some View {
         Button(action: {
             viewModel.toggleNoteCompletion(note)
@@ -83,13 +97,13 @@ struct NoteRowView: View {
         }
         .buttonStyle(PlainButtonStyle())
     }
-    
+
     private var noteTypeIcon: some View {
         Image(systemName: noteTypeIconName)
             .foregroundColor(.white)
             .font(.system(size: 16))
     }
-    
+
     private var noteTypeIconName: String {
         switch note.type {
         case .text: return "text.bubble.fill"
@@ -98,7 +112,7 @@ struct NoteRowView: View {
         case .video: return "video.fill"
         }
     }
-    
+
     private var noteBackgroundColor: Color {
         switch note.type {
         case .text: return .green
@@ -107,7 +121,7 @@ struct NoteRowView: View {
         case .video: return .red
         }
     }
-    
+
     private var editButton: some View {
         Group {
             if isEditable {
@@ -127,7 +141,7 @@ struct NoteRowView: View {
             }
         }
     }
-    
+
     private var noteContent: some View {
         Group {
             switch note.type {
@@ -176,14 +190,14 @@ struct NoteRowView: View {
             }
         }
     }
-    
+
     private var isEditable: Bool {
         switch note.type {
         case .text, .audio: return true
         default: return false
         }
     }
-    
+
     private var contentToEdit: String {
         switch note.type {
         case .text(let content): return content
@@ -191,7 +205,7 @@ struct NoteRowView: View {
         default: return ""
         }
     }
-    
+
     private func formatDuration(_ duration: TimeInterval) -> String {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.minute, .second]
@@ -199,7 +213,7 @@ struct NoteRowView: View {
         formatter.zeroFormattingBehavior = .pad
         return formatter.string(from: duration) ?? "0:00"
     }
-    
+
     private func saveEdits() {
         switch note.type {
         case .text:
@@ -210,7 +224,7 @@ struct NoteRowView: View {
             break
         }
     }
-    
+
     private var deleteButton: some View {
         Button(action: {
             viewModel.deleteNote(note)
@@ -220,5 +234,14 @@ struct NoteRowView: View {
                 .foregroundColor(.white)
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+extension NoteType {
+    var isAudio: Bool {
+        if case .audio = self {
+            return true
+        }
+        return false
     }
 }

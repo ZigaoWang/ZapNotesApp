@@ -13,13 +13,15 @@ struct NoteItem: Identifiable, Codable {
     var type: NoteType
     var isCompleted: Bool
     var transcription: String?
-    
-    init(id: UUID = UUID(), timestamp: Date = Date(), type: NoteType, isCompleted: Bool = false, transcription: String? = nil) {
+    var isTranscribing: Bool
+
+    init(id: UUID = UUID(), timestamp: Date = Date(), type: NoteType, isCompleted: Bool = false, transcription: String? = nil, isTranscribing: Bool = false) {
         self.id = id
         self.timestamp = timestamp
         self.type = type
         self.isCompleted = isCompleted
         self.transcription = transcription
+        self.isTranscribing = isTranscribing
     }
 }
 

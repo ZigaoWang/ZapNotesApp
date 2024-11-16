@@ -24,6 +24,7 @@ class NotesViewModel: ObservableObject {
     @Published var showingCamera = false
     @Published var showingVideoRecorder = false
     @Published var isOrganizing = false
+    @Published var isTranscribing = false
     
     private var audioRecorder: AVAudioRecorder?
     private var audioFileURL: URL?
@@ -62,7 +63,9 @@ class NotesViewModel: ObservableObject {
         
         // Start transcription asynchronously
         Task {
+            isTranscribing = true
             await transcribeAudioNote(newNote)
+            isTranscribing = false
         }
     }
     
@@ -140,20 +143,37 @@ class NotesViewModel: ObservableObject {
     
     // MARK: - Transcription
     
-    func transcribeAudioNote(_ note: NoteItem) async {
+func transcribeAudioNote(_ note: NoteItem) async {
         guard case .audio(let fileName, _) = note.type else { return }
-        
+
+        // 在主线程上更新对应笔记的 isTranscribing 状态为 true
+        await MainActor.run {
+            if let index = notes.firstIndex(where: { $0.id == note.id }) {
+                notes[index].isTranscribing = true
+                objectWillChange.send()
+            }
+        }
+
         do {
             let audioFileURL = getDocumentsDirectory().appendingPathComponent(fileName)
             let transcription = try await AIManager.shared.transcribeAudio(url: audioFileURL)
+
+            // 更新转录内容，并将 isTranscribing 设为 false
             await MainActor.run {
                 if let index = notes.firstIndex(where: { $0.id == note.id }) {
                     notes[index].transcription = transcription
+                    notes[index].isTranscribing = false
                     saveNotes()
                 }
             }
         } catch {
             print("Error transcribing audio: \(error)")
+            // 确保在发生错误时也将 isTranscribing 设为 false
+            await MainActor.run {
+                if let index = notes.firstIndex(where: { $0.id == note.id }) {
+                    notes[index].isTranscribing = false
+                }
+            }
         }
     }
     
