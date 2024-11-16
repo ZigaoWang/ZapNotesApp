@@ -45,20 +45,23 @@ struct AudioPlayerInlineView: View {
         }
     }
     
-    private func setupPlayer() {
-        guard case .audio(let fileName, _) = note.type else { return }
-        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let audioUrl = documentsPath.appendingPathComponent(fileName)
-        
-        player = AVPlayer(url: audioUrl)
-        player?.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.1, preferredTimescale: 1000), queue: .main) { time in
-            progress = time.seconds
-        }
-        
+private func setupPlayer() {
+    guard case .audio(let fileName, _) = note.type else { return }
+    let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    let audioUrl = documentsPath.appendingPathComponent(fileName)
+    
+    player = AVPlayer(url: audioUrl)
+    player?.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.1, preferredTimescale: 1000), queue: .main) { time in
+        progress = time.seconds
         if let duration = player?.currentItem?.duration, duration.seconds.isFinite {
             self.duration = max(duration.seconds, 0.01)
         }
     }
+    
+    if let duration = player?.currentItem?.duration, duration.seconds.isFinite {
+        self.duration = max(duration.seconds, 0.01)
+    }
+}
     
     private func togglePlayPause() {
         if isPlaying {

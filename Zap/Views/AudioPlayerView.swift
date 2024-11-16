@@ -10,7 +10,7 @@ import AVFoundation
 
 struct AudioPlayerView: View {
     let url: URL
-    let duration: TimeInterval
+    @State private var duration: TimeInterval = 0  // Change 'duration' to a @State variable
 
     @State private var isPlaying = false
     @State private var progress: Double = 0
@@ -47,24 +47,25 @@ struct AudioPlayerView: View {
         }
     }
 
-    private func setupPlayer() {
-        do {
-            player = try AVAudioPlayer(contentsOf: url)
-            player?.prepareToPlay()
+private func setupPlayer() {
+    do {
+        player = try AVAudioPlayer(contentsOf: url)
+        player?.prepareToPlay()
+        duration = player?.duration ?? 0  // Ensure duration is set correctly
 
-            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-                if let player = player {
-                    progress = player.currentTime
-                    if !player.isPlaying {
-                        isPlaying = false
-                    }
+        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            if let player = player {
+                progress = player.currentTime
+                if !player.isPlaying {
+                    isPlaying = false
                 }
             }
-        } catch {
-            errorMessage = "Error setting up player: \(error.localizedDescription)"
-            print("Error setting up player: \(error)")
         }
+    } catch {
+        errorMessage = "Error setting up player: \(error.localizedDescription)"
+        print("Error setting up player: \(error)")
     }
+}
 
     private func togglePlayPause() {
         if isPlaying {
