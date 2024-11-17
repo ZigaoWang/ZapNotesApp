@@ -34,9 +34,12 @@ struct NoteRowView: View {
                     }
 
                     if isEditing {
-                        TextField("Edit note", text: $editedContent)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .foregroundColor(.black)
+                        // Use TextEditor instead of TextField for multiline input
+                        TextEditor(text: $editedContent)
+                            .frame(minHeight: 100) // Increase the height here
+                            .padding()
+                            .border(Color.gray, width: 1) // Optional border for styling
+                            .cornerRadius(10) // Optional rounded corners
                             .onSubmit {
                                 saveEdits()
                                 isEditing = false
