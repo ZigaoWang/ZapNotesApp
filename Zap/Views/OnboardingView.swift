@@ -20,94 +20,75 @@ struct OnboardingView: View {
         OnboardingPage(title: "Open Source & Free", description: "No subscriptions, no ads. Made by Zigao Wang.", iconName: "star.fill")
     ]
 
-    var body: some View {
-        VStack {
-            PageView(pages: pages, currentPage: $currentPage)
-                .onChange(of: currentPage) { newValue in
-                    // Show buttons when reaching the last page
-                    if newValue == pages.count - 1 {
-                        withAnimation(.easeIn(duration: 0.5)) {
-                            showButtons = true
-                        }
-                    } else {
-                        showButtons = false
+var body: some View {
+    VStack {
+        PageView(pages: pages, currentPage: $currentPage)
+            .onChange(of: currentPage) { newValue in
+                // Show buttons when reaching the last page
+                if newValue == pages.count - 1 {
+                    withAnimation(.easeIn(duration: 0.5)) {
+                        showButtons = true
                     }
+                } else {
+                    showButtons = false
                 }
+            }
 
-            PageControl(numberOfPages: pages.count, currentPage: $currentPage)
-                .padding(.top, 20)
+        // Place the "More Links" button above the page indicators
+        if currentPage == pages.count - 1 && showButtons {
+            Menu {
+                Button("Zigao Wang's Profile") {
+                    openURL("https://zigao.wang")
+                }
+                Button("GitHub Repository") {
+                    openURL("https://github.com/ZapNotesApp/Zap")
+                }
+                Button("Official Website") {
+                    openURL("https://zap-notes.com")
+                }
+            } label: {
+                Text("More Links")
+                    .font(.headline)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+            }
+            .padding(.bottom, 20) // Add some space between the button and the page indicators
+        }
 
-            if currentPage == pages.count - 1 {
-                VStack(spacing: 20) {
-                    Text("Check out the links below:")
+        PageControl(numberOfPages: pages.count, currentPage: $currentPage)
+            .padding(.top, 20)
+
+        if currentPage == pages.count - 1 {
+            VStack(spacing: 20) {
+                Button(action: {
+                    isOnboarding = false
+                    UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+                }) {
+                    Text("Get Started")
                         .font(.headline)
                         .padding()
-
-                    // Fade-in effect for buttons
-                    if showButtons {
-                        Button(action: {
-                            if let url = URL(string: "https://zigao.wang") {
-                                UIApplication.shared.open(url)
-                            }
-                        }) {
-                            Text("Zigao Wang's Profile")
-                                .font(.headline)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
-
-                        Button(action: {
-                            if let url = URL(string: "https://github.com/ZapNotesApp/Zap") {
-                                UIApplication.shared.open(url)
-                            }
-                        }) {
-                            Text("GitHub Repository")
-                                .font(.headline)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
-
-                        Button(action: {
-                            if let url = URL(string: "https://zap-notes.com") {
-                                UIApplication.shared.open(url)
-                            }
-                        }) {
-                            Text("Official Website")
-                                .font(.headline)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
-
-                        Button(action: {
-                            isOnboarding = false
-                            UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
-                        }) {
-                            Text("Get Started")
-                                .font(.headline)
-                                .padding()
-                                .background(Color.green)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
-                        .padding(.top, 20)
-                        .transition(.opacity) // Add transition effect
-                    }
+                        .frame(maxWidth: .infinity)
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
                 }
-                .padding()
-                .animation(.easeInOut, value: showButtons) // Animate the button appearance
+                .padding(.top, 20)
+                .transition(.opacity) // Add transition effect
             }
+            .padding()
+            .animation(.easeInOut, value: showButtons) // Animate the button appearance
         }
-        .padding()
     }
+    .padding()
+}
+
+private func openURL(_ urlString: String) {
+    if let url = URL(string: urlString) {
+        UIApplication.shared.open(url)
+    }
+}
 }
 
 struct OnboardingPage {
