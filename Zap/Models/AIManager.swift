@@ -61,7 +61,7 @@ class AIManager {
         var body = Data()
         
         // Add text content
-        let textContent = "Please analyze this image and provide a brief description."
+        let textContent = "Please analyze this image and provide a brief description. Only give me the description, do not give me anything else."
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"text\"\r\n\r\n".data(using: .utf8)!)
         body.append(textContent.data(using: .utf8)!)
@@ -214,7 +214,7 @@ class AIManager {
             {
                 "content": "The content of the note"
             }
-            Keep each note concise and actionable. Make sure your response is valid JSON and contains only the data requested. Don't respond in other format.
+            Keep each note concise and actionable. Make sure your response is valid JSON and contains only the data requested. Don't respond in other format. If there are contents that are not clear, please give just describe the notes briefly, but don't respond anything else. Only in JSON format.
             """]
         ]
         
@@ -236,7 +236,7 @@ class AIManager {
             }
         }
         
-        messages.append(["role": "user", "content": "Please analyze these notes, summarize them, and create a simple, actionable list of tasks or points in the specified JSON format."])
+        messages.append(["role": "user", "content": "Please analyze these notes, summarize them, and create a simple, actionable list of tasks or points in the specified JSON format. Do not respond in other format, only JSON."])
         
         let organizedContent = try await sendOrganizationRequest(messages: messages)
         return convertJSONToNoteItems(organizedContent)
@@ -249,7 +249,7 @@ class AIManager {
         
         let requestBody: [String: Any] = [
             "messages": messages,
-            "max_tokens": 1000 // Increase token limit for more detailed responses
+            "max_tokens": 1000
         ]
         
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
