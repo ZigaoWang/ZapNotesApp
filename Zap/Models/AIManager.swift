@@ -208,14 +208,25 @@ class AIManager {
     
     func organizeAndPlanNotes(_ notes: [NoteItem]) async throws -> [NoteItem] {
         var messages: [[String: Any]] = [
-            ["role": "system", "content": """
-            You are an AI assistant that organizes and plans notes. Analyze the following notes, summarize them, and create a simple, actionable list of tasks or points. Use the same language as the input.
-            Format your response as a JSON array of objects, where each object represents a note with the following structure:
-            {
-                "content": "The content of the note"
-            }
-            Keep each note concise and actionable. Make sure your response is valid JSON and contains only the data requested. Don't respond in other format. If there are contents that are not clear, please give just describe the notes briefly, but don't respond anything else. Only in JSON format.
-            """]
+            [
+                "role": "system",
+                "content": """
+                    You are a highly innovative and intelligent assistant designed to analyze, organize, and enhance notes for maximum utility. Your response must strictly adhere to the JSON format. Follow these rules:
+
+                    - Always respond with a valid JSON array of objects.
+                    - Each object in the array should have the structure:
+                      {
+                          "content": "The content of the note"
+                      }
+                    - Use the same language as the input, ensuring clarity and conciseness.
+                    - If a note is unclear or ambiguous, include it verbatim as the "content" without modification.
+                    - For lengthy or complex notes with multiple points, split them into smaller, actionable items, with each point represented as a separate object.
+                    - If applicable, refine and organize the notes to make them more actionable or helpful while preserving their original intent.
+                    - Do not include any plain English commentary, explanations, or additional text outside the JSON format.
+                    - Ensure every response strictly adheres to these rules and is valid JSON.
+                    - Your goal is to make people's lives easier by presenting organized, actionable notes in an efficient and user-friendly format.
+                    """
+            ]
         ]
         
         for note in notes {
