@@ -20,8 +20,10 @@ struct EditNoteView: View {
         switch note.type {
         case .text(let content):
             _editedContent = State(initialValue: content)
-        case .audio(_, _), .photo(_), .video(_, _):
+        case .audio(_, _), .photo(_):
             _editedContent = State(initialValue: note.transcription ?? "")
+        default:
+            fatalError("Unsupported note type")
         }
     }
 
@@ -39,8 +41,10 @@ struct EditNoteView: View {
                         switch updatedNote.type {
                         case .text:
                             updatedNote.type = .text(editedContent)
-                        case .audio, .photo, .video:
+                        case .audio, .photo:
                             updatedNote.transcription = editedContent
+                        default:
+                            fatalError("Unsupported note type")
                         }
                         onSave(updatedNote)
                         presentationMode.wrappedValue.dismiss()

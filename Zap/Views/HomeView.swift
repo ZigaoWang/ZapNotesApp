@@ -17,9 +17,9 @@ struct HomeView: View {
     @State private var showingDeleteAlert = false
     @State private var noteToDelete: NoteItem?
     
-    let tabs = ["All", "Text", "Audio", "Photo", "Video"]
+    let tabs = ["All", "Text", "Audio", "Photo"]
 
-    private let joystickSize: CGFloat = 160 // Increased from 140
+    private let joystickSize: CGFloat = 160
     private let bottomPadding: CGFloat = 20
     
     var body: some View {
@@ -168,27 +168,22 @@ struct HomeView: View {
                 viewModel.handleCapturedImage(image)
             }
         }
-        .sheet(isPresented: $viewModel.showingVideoRecorder) {
-            VideoPicker { videoURL in
-                viewModel.handleCapturedVideo(videoURL)
-            }
-        }
     }
     
     private var filteredNotes: [NoteItem] {
+        let notes = viewModel.notes
+        
         switch selectedTab {
         case "All":
-            return viewModel.notes
+            return notes
         case "Text":
-            return viewModel.notes.filter { if case .text = $0.type { return true } else { return false } }
+            return notes.filter { if case .text = $0.type { return true } else { return false } }
         case "Audio":
-            return viewModel.notes.filter { if case .audio = $0.type { return true } else { return false } }
+            return notes.filter { if case .audio = $0.type { return true } else { return false } }
         case "Photo":
-            return viewModel.notes.filter { if case .photo = $0.type { return true } else { return false } }
-        case "Video":
-            return viewModel.notes.filter { if case .video = $0.type { return true } else { return false } }
+            return notes.filter { if case .photo = $0.type { return true } else { return false } }
         default:
-            return viewModel.notes
+            return notes
         }
     }
 

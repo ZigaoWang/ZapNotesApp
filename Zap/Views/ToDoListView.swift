@@ -48,8 +48,6 @@ struct ToDoListView: View {
             return "Audio Note"
         case .photo:
             return "Photo Note"
-        case .video:
-            return "Video Note"
         }
     }
 }

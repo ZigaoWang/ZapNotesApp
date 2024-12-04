@@ -22,7 +22,6 @@ class NotesViewModel: ObservableObject {
     @Published var textInputContent = ""
     @Published var showingImagePicker = false
     @Published var showingCamera = false
-    @Published var showingVideoRecorder = false
     @Published var isOrganizing = false
     @Published var isTranscribing = false
     
@@ -71,12 +70,6 @@ class NotesViewModel: ObservableObject {
     
     func addPhotoNote(fileName: String) {
         let newNote = NoteItem(type: .photo(fileName))
-        notes.insert(newNote, at: 0)
-        saveNotes()
-    }
-    
-    func addVideoNote(fileName: String, duration: TimeInterval) {
-        let newNote = NoteItem(type: .video(fileName, duration))
         notes.insert(newNote, at: 0)
         saveNotes()
     }
@@ -282,10 +275,6 @@ func transcribeAudioNote(_ note: NoteItem) async {
         showingCamera = true
     }
     
-    func captureVideo() {
-        showingVideoRecorder = true
-    }
-    
     func showTextNoteInput() {
         showingTextInput = true
     }
@@ -301,16 +290,6 @@ func transcribeAudioNote(_ note: NoteItem) async {
             try? data.write(to: fileURL)
             addPhotoNote(fileName: fileName)
         }
-    }
-    
-    func handleCapturedVideo(_ videoURL: URL) {
-        let fileName = UUID().uuidString + ".mov"
-        let destinationURL = getDocumentsDirectory().appendingPathComponent(fileName)
-        try? FileManager.default.copyItem(at: videoURL, to: destinationURL)
-        
-        let asset = AVAsset(url: videoURL)
-        let duration = asset.duration.seconds
-        addVideoNote(fileName: fileName, duration: duration)
     }
     
     func organizeAndPlanNotes() {

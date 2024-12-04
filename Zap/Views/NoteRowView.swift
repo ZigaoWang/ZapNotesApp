@@ -112,7 +112,6 @@ struct NoteRowView: View {
         case .text: return "text.bubble.fill"
         case .audio: return "mic.circle.fill"
         case .photo: return "camera.fill"
-        case .video: return "video.fill"
         }
     }
 
@@ -121,7 +120,6 @@ struct NoteRowView: View {
         case .text: return .green
         case .audio: return .blue
         case .photo: return .orange
-        case .video: return .red
         }
     }
 
@@ -149,11 +147,12 @@ struct NoteRowView: View {
         Group {
             switch note.type {
             case .text(let content):
-                Text(content)
-                    .lineLimit(2)
-                    .font(.system(size: 16))
-                    .foregroundColor(.white)
-            case .audio(_, let duration):
+                VStack(alignment: .leading) {
+                    Text(content)
+                        .lineLimit(2)
+                        .foregroundColor(.white)
+                }
+            case .audio(_, _):
                 VStack(alignment: .leading, spacing: 4) {
                     AudioPlayerInlineView(note: note)
                         .accentColor(.white)
@@ -166,28 +165,10 @@ struct NoteRowView: View {
                     }
                 }
             case .photo(let fileName):
-                HStack {
+                VStack(alignment: .leading) {
                     ImagePreviewView(fileName: fileName)
-                        .frame(width: 70, height: 70)
+                        .frame(height: 70)
                         .cornerRadius(10)
-                    Text("Photo Note")
-                        .font(.system(size: 16))
-                        .foregroundColor(.white)
-                }
-                .onTapGesture { showFullScreen = true }
-            case .video(let fileName, let duration):
-                HStack {
-                    VideoPreviewView(fileName: fileName)
-                        .frame(width: 70, height: 70)
-                        .cornerRadius(10)
-                    VStack(alignment: .leading) {
-                        Text("Video Note")
-                            .font(.system(size: 16))
-                            .foregroundColor(.white)
-                        Text(formatDuration(duration))
-                            .font(.system(size: 14))
-                            .foregroundColor(.white)
-                    }
                 }
                 .onTapGesture { showFullScreen = true }
             }

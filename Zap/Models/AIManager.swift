@@ -33,8 +33,6 @@ class AIManager {
                    let description = try await analyzeImage(image) {
                     messages.append(["role": "user", "content": "图片: \(description)"])
                 }
-            case .video(let fileName, _):
-                messages.append(["role": "user", "content": "视频: \(fileName)"])
             case .audio(_, _):
                 if let transcription = note.transcription {
                     messages.append(["role": "user", "content": "音频: \(transcription)"])
@@ -238,8 +236,6 @@ class AIManager {
                    let description = try await analyzeImage(image) {
                     messages.append(["role": "user", "content": "Image: \(description)"])
                 }
-            case .video(let fileName, _):
-                messages.append(["role": "user", "content": "Video: \(fileName)"])
             case .audio(_, _):
                 if let transcription = note.transcription {
                     messages.append(["role": "user", "content": "Audio: \(transcription)"])

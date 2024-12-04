@@ -49,7 +49,6 @@
 				TextInputView.swift,
 				TextNoteView.swift,
 				ToDoListView.swift,
-				VideoPicker.swift,
 				VideoThumbnailView.swift,
 			);
 			target = A293D0AC2C9B0941005F0A3C /* Zap */;

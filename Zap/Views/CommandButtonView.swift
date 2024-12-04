@@ -10,7 +10,7 @@ import AVFoundation
 
 struct CommandButton: View {
     @ObservedObject var viewModel: NotesViewModel
-    @State private var currentMode: InputMode = .center
+    @State private var currentMode: CommandMode = .center
     @State private var dragOffset: CGSize = .zero
     @State private var isDragging = false
     
@@ -21,20 +21,18 @@ struct CommandButton: View {
     private let horizontalPadding: CGFloat = 15
     private let verticalPadding: CGFloat = 50
     
-    enum InputMode: String, CaseIterable {
-        case center = "mic.circle.fill"
+    enum CommandMode: String, CaseIterable {
         case text = "text.bubble.fill"
         case photo = "camera.fill"
-        case video = "video.fill"
         case album = "photo.on.rectangle.fill"
+        case center = "mic.circle.fill"
         
         var color: Color {
             switch self {
-            case .center: return .blue
             case .text: return .green
             case .photo: return .orange
-            case .video: return .red
             case .album: return .purple
+            case .center: return .blue
             }
         }
     }
@@ -51,7 +49,7 @@ struct CommandButton: View {
                 .fill(Color.secondary.opacity(0.2))
                 .frame(width: outerCircleSize, height: outerCircleSize)
             
-            ForEach(InputMode.allCases.filter { $0 != .center }, id: \.self) { mode in
+            ForEach(CommandMode.allCases.filter { $0 != .center }, id: \.self) { mode in
                 sectionIcon(for: mode)
             }
             
@@ -91,14 +89,13 @@ struct CommandButton: View {
         // Remove the position modifier to let it be positioned by its container
     }
     
-    private func sectionIcon(for mode: InputMode) -> some View {
+    private func sectionIcon(for mode: CommandMode) -> some View {
         let angle: Double
         switch mode {
         case .text: angle = -90
         case .photo: angle = 180
-        case .video: angle = 0
-        case .album: angle = 90
-        default: angle = 0
+        case .album: angle = 0
+        case .center: angle = 0
         }
         
         return Image(systemName: mode.rawValue)
@@ -144,13 +141,13 @@ struct CommandButton: View {
         }
         
         let angle = atan2(dy, dx) * 180 / .pi
-        let newMode: InputMode
+        let newMode: CommandMode
         
         switch angle {
         case -45..<45:
-            newMode = .video
-        case 45..<135:
             newMode = .album
+        case 45..<135:
+            newMode = .text
         case -135..<(-45):
             newMode = .text
         case -180..<(-135), 135...180:
@@ -171,8 +168,6 @@ struct CommandButton: View {
             viewModel.showingTextInput = true
         case .photo:
             viewModel.capturePhoto()
-        case .video:
-            viewModel.captureVideo()
         case .album:
             viewModel.showImagePicker()
         case .center:

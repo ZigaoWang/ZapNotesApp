@@ -29,5 +29,4 @@ enum NoteType: Codable {
     case text(String)
     case audio(String, TimeInterval)
     case photo(String)
-    case video(String, TimeInterval)
 }

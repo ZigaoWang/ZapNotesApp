@@ -22,9 +22,6 @@ struct FullScreenMediaView: View {
             case .photo(let fileName):
                 let url = getDocumentsDirectory().appendingPathComponent(fileName)
                 PhotoFullScreenView(url: url)
-            case .video(let fileName, _):
-                let url = getDocumentsDirectory().appendingPathComponent(fileName)
-                VideoFullScreenView(url: url)
             default:
                 EmptyView()
             }
