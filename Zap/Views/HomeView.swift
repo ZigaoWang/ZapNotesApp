@@ -106,23 +106,15 @@ struct HomeView: View {
                                         .padding(.horizontal, 16)
                                 }
                             }
-                            .padding(.bottom, joystickSize + bottomPadding * 2)
+                            .padding(.bottom, 100) // Adjusted padding for bottom bar
                         }
                     }
                 }
                 
-                // CommandButton (joystick)
+                // Command buttons at bottom
                 VStack {
                     Spacer()
-                    HStack {
-                        Spacer()
-                        CommandButton(viewModel: viewModel)
-                            .frame(width: joystickSize, height: joystickSize)
-                            .background(Color.clear)
-                            .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2)
-                        Spacer()
-                    }
-                    .padding(.bottom, bottomPadding)
+                    CommandButton(viewModel: viewModel)
                 }
             }
             .navigationBarHidden(true)

@@ -10,179 +10,128 @@ import AVFoundation
 
 struct CommandButton: View {
     @ObservedObject var viewModel: NotesViewModel
-    @State private var currentMode: CommandMode = .center
-    @State private var dragOffset: CGSize = .zero
-    @State private var isDragging = false
+    @Environment(\.colorScheme) var colorScheme
+    @State private var isRecording = false
+    @State private var isExpanded = false
+    @State private var activeButton: Int? = nil
     
     private let hapticImpact = UIImpactFeedbackGenerator(style: .medium)
-    private let buttonSize: CGFloat = 40
-    private let outerCircleSize: CGFloat = 140
-    private let maxDragDistance: CGFloat = 35
-    private let horizontalPadding: CGFloat = 15
-    private let verticalPadding: CGFloat = 50
-    
-    enum CommandMode: String, CaseIterable {
-        case text = "text.bubble.fill"
-        case photo = "camera.fill"
-        case album = "photo.on.rectangle.fill"
-        case center = "mic.circle.fill"
-        
-        var color: Color {
-            switch self {
-            case .text: return .green
-            case .photo: return .orange
-            case .album: return .purple
-            case .center: return .blue
-            }
-        }
-    }
+    private let buttonSize: CGFloat = 32
     
     var body: some View {
-        ZStack {
-            // White background
-            Circle()
-                .fill(Color(uiColor: .systemBackground))
-                .frame(width: outerCircleSize, height: outerCircleSize)
-                .shadow(color: Color.primary.opacity(0.1), radius: 5, x: 0, y: 2)
-            
-            Circle()
-                .fill(Color.secondary.opacity(0.2))
-                .frame(width: outerCircleSize, height: outerCircleSize)
-            
-            ForEach(CommandMode.allCases.filter { $0 != .center }, id: \.self) { mode in
-                sectionIcon(for: mode)
-            }
-            
-            Circle()
-                .fill(viewModel.isRecording ? Color.red : currentMode.color)
-                .frame(width: buttonSize, height: buttonSize)
-                .overlay(
-                    Image(systemName: viewModel.isRecording ? "stop.circle" : currentMode.rawValue)
-                        .foregroundColor(.white)
-                        .font(.system(size: 24))
-                )
-                .offset(dragOffset)
-                .animation(.spring(response: 0.3, dampingFraction: 0.6), value: dragOffset)
-                .gesture(
-                    DragGesture()
-                        .onChanged { value in
-                            updateJoystickPosition(value: value)
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    ForEach(Array(zip([0,1,2], [
+                        ("text.bubble.fill", Color.green, { viewModel.showTextNoteInput() }),
+                        ("camera.fill", Color.orange, { viewModel.capturePhoto() }),
+                        ("photo.on.rectangle.fill", Color.purple, { viewModel.showImagePicker() })
+                    ])), id: \.0) { index, item in
+                        Spacer()
+                        Button(action: {
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                activeButton = index
+                            }
+                            hapticImpact.impactOccurred()
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                item.2()
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                    activeButton = nil
+                                }
+                            }
+                        }) {
+                            Circle()
+                                .fill(item.1.opacity(0.15))
+                                .frame(width: 50, height: 50)
+                                .overlay(
+                                    Image(systemName: item.0)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: buttonSize, height: buttonSize)
+                                        .foregroundColor(item.1)
+                                )
+                                .scaleEffect(activeButton == index ? 0.9 : 1.0)
                         }
-                        .onEnded { _ in
-                            resetJoystickPosition()
-                        }
-                )
-                .onTapGesture {
-                    toggleRecording()
+                    }
+                    
+                    Spacer()
+                    
+                    // Audio Button with Long Press Gesture
+                    Circle()
+                        .fill(isRecording ? Color.red.opacity(0.15) : Color.blue.opacity(0.15))
+                        .frame(width: 50, height: 50)
+                        .overlay(
+                            Image(systemName: isRecording ? "stop.circle.fill" : "mic.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: buttonSize, height: buttonSize)
+                                .foregroundColor(isRecording ? .red : .blue)
+                        )
+                        .scaleEffect(isRecording ? 1.1 : 1.0)
+                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isRecording)
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { _ in
+                                    if !isRecording {
+                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                            hapticImpact.impactOccurred()
+                                            viewModel.startRecording()
+                                            isRecording = true
+                                            isExpanded = true
+                                        }
+                                    }
+                                }
+                                .onEnded { _ in
+                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                        hapticImpact.impactOccurred()
+                                        viewModel.stopRecording()
+                                        isRecording = false
+                                        isExpanded = false
+                                    }
+                                }
+                        )
+                    
+                    Spacer()
                 }
-            
-            Circle()
-                .fill(currentMode.color)
-                .frame(width: buttonSize * 1.2, height: buttonSize * 1.2)
-                .blur(radius: 20)
-                .opacity(isDragging ? 0.3 : 0)
-                .offset(dragOffset)
-                .animation(.easeInOut(duration: 0.2), value: isDragging)
-        }
-        .frame(width: outerCircleSize, height: outerCircleSize)
-        // Remove the background and clipShape modifiers
-        // Remove the position modifier to let it be positioned by its container
-    }
-    
-    private func sectionIcon(for mode: CommandMode) -> some View {
-        let angle: Double
-        switch mode {
-        case .text: angle = -90
-        case .photo: angle = 180
-        case .album: angle = 0
-        case .center: angle = 0
-        }
-        
-        return Image(systemName: mode.rawValue)
-            .font(.system(size: 24, weight: .regular))
-            .foregroundColor(currentMode == mode ? mode.color : .secondary)
-            .offset(x: cos(angle * .pi / 180) * outerCircleSize / 2.8,
-                    y: sin(angle * .pi / 180) * outerCircleSize / 2.8)
+                .padding(.vertical, 12)
+            }
             .background(
-                Circle()
-                    .fill(Color(uiColor: .systemBackground).opacity(0.1))
-                    .frame(width: 45, height: 45)
+                RoundedRectangle(cornerRadius: 32)
+                    .fill(colorScheme == .dark ? 
+                        Color(.systemGray6).opacity(0.95) : 
+                        Color(.systemBackground).opacity(0.95)
+                    )
+                    .shadow(
+                        color: Color(.systemGray4).opacity(0.3),
+                        radius: 15,
+                        x: 0,
+                        y: 5
+                    )
             )
+            .overlay(
+                RoundedRectangle(cornerRadius: 32)
+                    .stroke(
+                        Color(.systemGray4).opacity(0.2),
+                        lineWidth: 0.5
+                    )
+            )
+            .padding(.horizontal, 16)
+            .position(x: geometry.size.width / 2, y: geometry.size.height - 20)
+        }
+        .ignoresSafeArea(.keyboard)
     }
-    
-    private func updateJoystickPosition(value: DragGesture.Value) {
-        let dragVector = CGSize(
-            width: min(max(value.translation.width, -maxDragDistance), maxDragDistance),
-            height: min(max(value.translation.height, -maxDragDistance), maxDragDistance)
-        )
-        dragOffset = dragVector
-        isDragging = true
-        
-        updateMode(for: CGPoint(x: outerCircleSize / 2 + dragVector.width,
-                                y: outerCircleSize / 2 + dragVector.height))
-    }
-    
-    private func resetJoystickPosition() {
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-            dragOffset = .zero
-            isDragging = false
+}
+
+// Preview provider
+struct CommandButton_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            CommandButton(viewModel: NotesViewModel())
+                .preferredColorScheme(.light)
+                .frame(height: 140)
+            CommandButton(viewModel: NotesViewModel())
+                .preferredColorScheme(.dark)
+                .frame(height: 140)
         }
-        executeAction()
-    }
-    
-    private func updateMode(for location: CGPoint) {
-        let center = CGPoint(x: outerCircleSize / 2, y: outerCircleSize / 2)
-        let dx = location.x - center.x
-        let dy = location.y - center.y
-        
-        if dx * dx + dy * dy < (buttonSize / 2) * (buttonSize / 2) {
-            currentMode = .center
-            return
-        }
-        
-        let angle = atan2(dy, dx) * 180 / .pi
-        let newMode: CommandMode
-        
-        switch angle {
-        case -45..<45:
-            newMode = .album
-        case 45..<135:
-            newMode = .text
-        case -135..<(-45):
-            newMode = .text
-        case -180..<(-135), 135...180:
-            newMode = .photo
-        default:
-            newMode = .center
-        }
-        
-        if newMode != currentMode {
-            currentMode = newMode
-            hapticImpact.impactOccurred(intensity: 0.7)
-        }
-    }
-    
-    private func executeAction() {
-        switch currentMode {
-        case .text:
-            viewModel.showingTextInput = true
-        case .photo:
-            viewModel.capturePhoto()
-        case .album:
-            viewModel.showImagePicker()
-        case .center:
-            break
-        }
-        
-        currentMode = .center
-    }
-    
-    private func toggleRecording() {
-        if viewModel.isRecording {
-            viewModel.stopRecording()
-        } else {
-            viewModel.startRecording()
-        }
-        hapticImpact.impactOccurred()
     }
 }
