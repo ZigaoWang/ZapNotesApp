@@ -12,40 +12,89 @@ struct AppearanceSettingsView: View {
     
     var body: some View {
         Form {
-            Section(header: Text("Theme")) {
-                Picker("App Theme", selection: $appearanceManager.appTheme) {
-                    ForEach(AppearanceManager.AppTheme.allCases, id: \.self) { theme in
-                        Text(theme.rawValue.capitalized).tag(theme)
-                    }
-                }
-                .pickerStyle(SegmentedPickerStyle())
+            Section {
+                ThemePickerView(selection: $appearanceManager.appTheme)
+            } header: {
+                SectionHeaderView(
+                    title: "Theme",
+                    icon: "sun.max.fill",
+                    color: .orange
+                )
             }
             
-            Section(header: Text("Accent Color")) {
+            Section {
                 ColorPicker("Accent Color", selection: $appearanceManager.accentColor)
                     .onChange(of: appearanceManager.accentColor) { newValue in
                         appearanceManager.accentColorString = newValue.toHex() ?? "blue"
                     }
-            }
-            
-            Section(header: Text("Font Size")) {
-                Picker("Font Size", selection: $appearanceManager.fontSize) {
-                    ForEach(AppearanceManager.FontSize.allCases, id: \.self) { size in
-                        Text(size.rawValue.capitalized).tag(size)
-                    }
-                }
-                .pickerStyle(SegmentedPickerStyle())
-            }
-            
-            Section(header: Text("List View Style")) {
-                Picker("List View Style", selection: $appearanceManager.listViewStyle) {
-                    ForEach(AppearanceManager.ListViewStyle.allCases, id: \.self) { style in
-                        Text(style.rawValue.capitalized).tag(style)
-                    }
-                }
-                .pickerStyle(SegmentedPickerStyle())
+            } header: {
+                SectionHeaderView(
+                    title: "Accent Color",
+                    icon: "paintpalette.fill",
+                    color: appearanceManager.accentColor
+                )
             }
         }
         .navigationTitle("Appearance")
+    }
+}
+
+struct ThemePickerView: View {
+    @Binding var selection: AppearanceManager.AppTheme
+    
+    var body: some View {
+        Picker("App Theme", selection: $selection) {
+            ForEach(AppearanceManager.AppTheme.allCases, id: \.self) { theme in
+                HStack {
+                    Image(systemName: themeIcon(for: theme))
+                        .foregroundColor(themeColor(for: theme))
+                    Text(theme.rawValue.capitalized)
+                }
+                .tag(theme)
+            }
+        }
+        .pickerStyle(.menu)
+    }
+    
+    private func themeIcon(for theme: AppearanceManager.AppTheme) -> String {
+        switch theme {
+        case .light: return "sun.max.fill"
+        case .dark: return "moon.fill"
+        case .system: return "gear"
+        }
+    }
+    
+    private func themeColor(for theme: AppearanceManager.AppTheme) -> Color {
+        switch theme {
+        case .light: return .orange
+        case .dark: return .purple
+        case .system: return .gray
+        }
+    }
+}
+
+struct SectionHeaderView: View {
+    let title: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .foregroundColor(color)
+            Text(title)
+        }
+        .textCase(nil)
+        .font(.headline)
+    }
+}
+
+// Preview
+struct AppearanceSettingsView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            AppearanceSettingsView()
+                .environmentObject(AppearanceManager())
+        }
     }
 }

@@ -120,7 +120,6 @@ struct HomeView: View {
             .navigationBarHidden(true)
         }
         .accentColor(appearanceManager.accentColor)
-        .font(.system(size: appearanceManager.fontSizeValue))
         .environmentObject(viewModel)
         .sheet(isPresented: $showingSettings) {
             SettingsView().environmentObject(appearanceManager)

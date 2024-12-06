@@ -11,26 +11,13 @@ class AppearanceManager: ObservableObject {
     @AppStorage("appTheme") var appTheme: AppTheme = .system
     @AppStorage("accentColorString") var accentColorString: String = "blue"
     @Published var accentColor: Color = .blue
-    @AppStorage("fontSize") var fontSize: FontSize = .medium
-    @AppStorage("listViewStyle") var listViewStyle: ListViewStyle = .standard
-    
-    @Published var fontSizeValue: CGFloat = 16 // Default to medium
     
     enum AppTheme: String, CaseIterable {
         case light, dark, system
     }
     
-    enum FontSize: String, CaseIterable {
-        case small, medium, large
-    }
-    
-    enum ListViewStyle: String, CaseIterable {
-        case compact, standard, expanded
-    }
-    
     init() {
         self.accentColor = Color(hex: accentColorString) ?? .blue
-        self.fontSizeValue = getFontSize(fontSize)
     }
     
     var colorScheme: ColorScheme? {
@@ -38,14 +25,6 @@ class AppearanceManager: ObservableObject {
         case .light: return .light
         case .dark: return .dark
         case .system: return nil
-        }
-    }
-    
-    private func getFontSize(_ size: FontSize) -> CGFloat {
-        switch size {
-        case .small: return 14
-        case .medium: return 16
-        case .large: return 18
         }
     }
     
@@ -108,17 +87,6 @@ extension Color {
         } else {
             return String(format: "%02lX%02lX%02lX", lroundf(r * 255), lroundf(g * 255), lroundf(b * 255))
         }
-    }
-}
-
-struct FontSizeKey: EnvironmentKey {
-    static let defaultValue: CGFloat = 16
-}
-
-extension EnvironmentValues {
-    var customFontSize: CGFloat {
-        get { self[FontSizeKey.self] }
-        set { self[FontSizeKey.self] = newValue }
     }
 }
 

@@ -8,37 +8,33 @@
 import SwiftUI
 
 struct SavedNotesView: View {
-    @EnvironmentObject var viewModel: NotesViewModel
+    @StateObject var viewModel = NotesViewModel()
     @EnvironmentObject var appearanceManager: AppearanceManager
-    @Environment(\.customFontSize) var fontSize
     
     var body: some View {
         NavigationView {
-            Group {
-                switch appearanceManager.listViewStyle {
-                case .compact:
-                    notesList.listStyle(InsetGroupedListStyle())
-                case .standard:
-                    notesList.listStyle(GroupedListStyle())
-                case .expanded:
-                    notesList.listStyle(PlainListStyle())
+            List {
+                ForEach(viewModel.notes) { note in
+                    NoteRowView(note: note)
                 }
+                .onDelete(perform: deleteNotes)
             }
             .navigationTitle("Saved Notes")
-        }
-        .font(.system(size: fontSize))
-    }
-    
-    var notesList: some View {
-        List {
-            ForEach(viewModel.notes) { note in
-                NoteRowView(note: note)
+            .toolbar {
+                EditButton()
             }
-            .onDelete(perform: deleteNotes)
         }
     }
     
-    func deleteNotes(at offsets: IndexSet) {
-        viewModel.deleteNotes(at: offsets)
+    private func deleteNotes(at offsets: IndexSet) {
+        viewModel.notes.remove(atOffsets: offsets)
+        viewModel.saveNotes()
+    }
+}
+
+struct SavedNotesView_Previews: PreviewProvider {
+    static var previews: some View {
+        SavedNotesView()
+            .environmentObject(AppearanceManager())
     }
 }

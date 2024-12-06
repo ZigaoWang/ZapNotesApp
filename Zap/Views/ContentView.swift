@@ -21,7 +21,6 @@ struct ContentView: View {
             HomeView()
                 .environmentObject(viewModel)
                 .environmentObject(appearanceManager)
-                .environment(\.customFontSize, appearanceManager.fontSizeValue)
                 .preferredColorScheme(appearanceManager.colorScheme)
                 .accentColor(appearanceManager.accentColor)
                 .onAppear {
