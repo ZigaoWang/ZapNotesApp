@@ -28,37 +28,37 @@ struct HomeView: View {
                 VStack(spacing: 0) {
                     // Top bar with logo, title, date, and icons
                     HStack {
-                        HStack(spacing: 8) {
+                        HStack(spacing: 10) {
                             Image("ZapLogo")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: 30, height: 30)
-                                .cornerRadius(6)
+                                .frame(width: 32, height: 32)
+                                .cornerRadius(8)
                             
                             Text("Zap Notes")
-                                .font(.headline.bold())
+                                .font(.title3.bold())
                         }
                         
                         Spacer()
                         
                         Text(formattedDate())
                             .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 12)
                         
                         Button(action: {
                             organizeAndPlanNotes()
                         }) {
                             Image(systemName: "wand.and.stars")
+                                .font(.system(size: 16))
                                 .foregroundColor(.white)
-                                .padding(8)
+                                .padding(10)
                                 .background(appearanceManager.accentColor)
                                 .clipShape(Circle())
                         }
                         .buttonStyle(PlainButtonStyle())
                         .disabled(isOrganizing)
                         
-                        Button(action: {}) {
-                            Image(systemName: "magnifyingglass")
-                        }
                         Button(action: {
                             showingSettings = true
                         }) {
