@@ -10,6 +10,8 @@ import SwiftUI
 struct TextInputView: View {
     @Binding var content: String
     var onSave: () -> Void
+    @State private var showingCancelAlert = false
+    @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
         NavigationView {
@@ -18,13 +20,28 @@ struct TextInputView: View {
                 .navigationBarTitle("New Note", displayMode: .inline)
                 .navigationBarItems(
                     leading: Button("Cancel") {
-                        content = ""
-                        onSave()
+                        if !content.isEmpty {
+                            showingCancelAlert = true
+                        } else {
+                            content = ""
+                            onSave()
+                        }
                     },
                     trailing: Button("Save") {
                         onSave()
                     }
                 )
+                .alert(isPresented: $showingCancelAlert) {
+                    Alert(
+                        title: Text("Discard Changes?"),
+                        message: Text("Are you sure you want to discard your note?"),
+                        primaryButton: .destructive(Text("Discard")) {
+                            content = ""
+                            onSave()
+                        },
+                        secondaryButton: .cancel()
+                    )
+                }
         }
     }
 }

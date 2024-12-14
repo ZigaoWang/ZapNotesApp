@@ -11,6 +11,7 @@ struct TextNoteView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var viewModel: NotesViewModel
     @State private var noteText = ""
+    @State private var showingCancelAlert = false
 
     var body: some View {
         NavigationView {
@@ -19,13 +20,27 @@ struct TextNoteView: View {
                 .navigationBarTitle("New Text Note", displayMode: .inline)
                 .navigationBarItems(
                     leading: Button("Cancel") {
-                        presentationMode.wrappedValue.dismiss()
+                        if !noteText.isEmpty {
+                            showingCancelAlert = true
+                        } else {
+                            presentationMode.wrappedValue.dismiss()
+                        }
                     },
                     trailing: Button("Save") {
                         viewModel.addTextNote(noteText)
                         presentationMode.wrappedValue.dismiss()
                     }
                 )
+                .alert(isPresented: $showingCancelAlert) {
+                    Alert(
+                        title: Text("Discard Changes?"),
+                        message: Text("Are you sure you want to discard your note?"),
+                        primaryButton: .destructive(Text("Discard")) {
+                            presentationMode.wrappedValue.dismiss()
+                        },
+                        secondaryButton: .cancel()
+                    )
+                }
         }
     }
 }

@@ -143,11 +143,13 @@ struct HomeView: View {
             }
         )
         .sheet(isPresented: $viewModel.showingTextInput) {
-            TextInputView(content: $viewModel.textInputContent, onSave: {
-                viewModel.addTextNote(viewModel.textInputContent)
+            TextInputView(content: $viewModel.textInputContent) {
+                if !viewModel.textInputContent.isEmpty {
+                    viewModel.addTextNote(viewModel.textInputContent)
+                }
                 viewModel.textInputContent = ""
                 viewModel.showingTextInput = false
-            })
+            }
         }
         .sheet(isPresented: $viewModel.showingImagePicker) {
             ImagePicker(sourceType: .photoLibrary) { image in
