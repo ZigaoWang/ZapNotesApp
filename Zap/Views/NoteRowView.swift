@@ -16,6 +16,7 @@ struct NoteRowView: View {
     @State private var showFullScreen = false
     @State private var isEditing = false
     @State private var editedContent = ""
+    @State private var isExpanded = false
 
     var body: some View {
         ZStack {
@@ -149,8 +150,34 @@ struct NoteRowView: View {
             case .text(let content):
                 VStack(alignment: .leading) {
                     Text(content)
-                        .lineLimit(2)
+                        .lineLimit(isExpanded ? nil : 2)
                         .foregroundColor(.white)
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isExpanded.toggle()
+                            }
+                        }
+                    if content.count > 100 && !isExpanded {
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isExpanded.toggle()
+                            }
+                        }) {
+                            Text("Show More")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                    } else if isExpanded {
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isExpanded.toggle()
+                            }
+                        }) {
+                            Text("Show Less")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                    }
                 }
             case .audio(_, _):
                 VStack(alignment: .leading, spacing: 4) {
@@ -159,9 +186,35 @@ struct NoteRowView: View {
                         .tint(.white)
                     if let transcription = note.transcription {
                         Text(transcription)
-                            .lineLimit(2)
+                            .lineLimit(isExpanded ? nil : 2)
                             .font(.system(size: 14))
                             .foregroundColor(.white)
+                            .onTapGesture {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isExpanded.toggle()
+                                }
+                            }
+                        if transcription.count > 100 && !isExpanded {
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isExpanded.toggle()
+                                }
+                            }) {
+                                Text("Show More")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                        } else if isExpanded {
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isExpanded.toggle()
+                                }
+                            }) {
+                                Text("Show Less")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                        }
                     }
                 }
             case .photo(let fileName):
