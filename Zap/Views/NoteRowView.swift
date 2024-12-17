@@ -165,12 +165,19 @@ struct NoteRowView: View {
                     }
                 }
             case .photo(let fileName):
-                VStack(alignment: .leading) {
+                ZStack(alignment: .leading) {
                     ImagePreviewView(fileName: fileName)
                         .frame(height: 70)
                         .cornerRadius(10)
+                        .contentShape(Rectangle())
+                        .allowsHitTesting(true)
+                        .onTapGesture {
+                            if !isEditing {
+                                showFullScreen = true
+                            }
+                        }
                 }
-                .onTapGesture { showFullScreen = true }
+                .allowsHitTesting(!isEditing)
             }
         }
     }
@@ -218,6 +225,7 @@ struct NoteRowView: View {
                 .foregroundColor(.white)
         }
         .buttonStyle(PlainButtonStyle())
+        .allowsHitTesting(true)
     }
 }
 
