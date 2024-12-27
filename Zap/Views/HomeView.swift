@@ -53,11 +53,26 @@ struct HomeView: View {
                                 .font(.system(size: 16))
                                 .foregroundColor(.white)
                                 .padding(10)
-                                .background(appearanceManager.accentColor)
+                                .background(viewModel.isOrganizing ? Color.gray : appearanceManager.accentColor)
                                 .clipShape(Circle())
                         }
                         .buttonStyle(PlainButtonStyle())
-                        .disabled(isOrganizing)
+                        .disabled(viewModel.isOrganizing)
+                        
+                        if viewModel.canUndo {
+                            Button(action: {
+                                viewModel.undoOrganization()
+                            }) {
+                                Image(systemName: "arrow.uturn.backward")
+                                    .font(.system(size: 16))
+                                    .foregroundColor(.white)
+                                    .padding(10)
+                                    .background(appearanceManager.accentColor)
+                                    .clipShape(Circle())
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .transition(.scale)
+                        }
                         
                         Button(action: {
                             showingSettings = true
@@ -111,6 +126,62 @@ struct HomeView: View {
                     }
                 }
                 
+                // Organization progress overlay
+                if viewModel.showOrganizationProgress {
+                    Color.black.opacity(0.4)
+                        .edgesIgnoringSafeArea(.all)
+                        .transition(.opacity)
+                    
+                    VStack(spacing: 20) {
+                        Spacer()
+                        VStack(spacing: 20) {
+                            ProgressView()
+                                .scaleEffect(1.2)
+                                .tint(.white)
+                            
+                            Text(viewModel.organizationStatus)
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(.horizontal, 30)
+                        .padding(.vertical, 25)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color(.systemBackground).opacity(0.95))
+                                .shadow(color: Color.black.opacity(0.2), radius: 15, x: 0, y: 10)
+                        )
+                        .padding(.horizontal, 40)
+                        Spacer()
+                    }
+                    .transition(.opacity.combined(with: .scale))
+                }
+                
+                if viewModel.errorMessage != nil {
+                    VStack {
+                        Spacer()
+                        HStack(spacing: 12) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.white)
+                            Text(viewModel.errorMessage!)
+                                .foregroundColor(.white)
+                                .font(.system(size: 16, weight: .medium))
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.red.opacity(0.9))
+                                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+                        )
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 100)
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+                
                 // Command buttons at bottom
                 VStack {
                     Spacer()
@@ -124,24 +195,6 @@ struct HomeView: View {
         .sheet(isPresented: $showingSettings) {
             SettingsView().environmentObject(appearanceManager)
         }
-        .overlay(
-            Group {
-                if isOrganizing {
-                    ProgressView("Organizing notes...")
-                        .padding()
-                        .background(Color(.systemBackground))
-                        .cornerRadius(10)
-                        .shadow(radius: 10)
-                } else if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .padding()
-                        .background(Color(.systemBackground))
-                        .cornerRadius(10)
-                        .shadow(radius: 10)
-                        .transition(.opacity)
-                }
-            }
-        )
         .sheet(isPresented: $viewModel.showingTextInput) {
             TextInputView(content: $viewModel.textInputContent) {
                 if !viewModel.textInputContent.isEmpty {
@@ -201,23 +254,7 @@ struct HomeView: View {
             return
         }
         
-        isOrganizing = true
-        Task {
-            do {
-                let organizedNotes = try await AIManager.shared.organizeAndPlanNotes(viewModel.notes)
-                await MainActor.run {
-                    // Replace existing notes with organized notes
-                    viewModel.notes = organizedNotes
-                    viewModel.saveNotes()
-                    isOrganizing = false
-                }
-            } catch {
-                print("Error organizing notes: \(error)")
-                await MainActor.run {
-                    isOrganizing = false
-                }
-            }
-        }
+        viewModel.organizeAndPlanNotes()
     }
 
     private func deleteNotes(at offsets: IndexSet) {

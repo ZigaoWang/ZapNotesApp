@@ -21,7 +21,7 @@ class AIManager {
 
     func summarizeNotes(_ notes: [NoteItem]) async throws -> String {
         var messages: [[String: Any]] = [
-            ["role": "system", "content": "简明扼要地总结以下笔记。请使用与输入相同的语言回复。"]
+            ["role": "system", "content": "Please summarize the following notes in a concise manner, using the same language as the input."]
         ]
 
         for note in notes {
@@ -31,23 +31,23 @@ class AIManager {
             case .photo(let fileName):
                 if let image = loadImage(fileName: fileName),
                    let description = try await analyzeImage(image) {
-                    messages.append(["role": "user", "content": "图片: \(description)"])
+                    messages.append(["role": "user", "content": "Image description: \(description)"])
                 }
             case .audio(_, _):
                 if let transcription = note.transcription {
-                    messages.append(["role": "user", "content": "音频: \(transcription)"])
+                    messages.append(["role": "user", "content": "Audio transcription: \(transcription)"])
                 }
             }
         }
 
-        messages.append(["role": "user", "content": "请简要总结这些笔记的主要内容。"])
+        messages.append(["role": "user", "content": "Please summarize the main points of these notes."])
         
         return try await sendSummarizationRequest(messages: messages)
     }
     
     private func analyzeImage(_ image: UIImage) async throws -> String? {
         guard let imageData = compressImage(image) else {
-            print("Failed to compress image")
+            print("[ERROR] Failed to compress image")
             return nil
         }
         
@@ -80,17 +80,17 @@ class AIManager {
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
-            print("Invalid response type")
+            print("[ERROR] Invalid response type")
             return nil
         }
         
-        print("HTTP Status Code: \(httpResponse.statusCode)")
-        print("Response Headers: \(httpResponse.allHeaderFields)")
+        print("[INFO] HTTP Status Code: \(httpResponse.statusCode)")
+        print("[DEBUG] Response Headers: \(httpResponse.allHeaderFields)")
         
         if !(200...299).contains(httpResponse.statusCode) {
-            print("HTTP request failed: \(response)")
+            print("[ERROR] HTTP request failed: \(response)")
             if let responseString = String(data: data, encoding: .utf8) {
-                print("Response body: \(responseString)")
+                print("[DEBUG] Response body: \(responseString)")
             }
             return nil
         }
@@ -103,14 +103,14 @@ class AIManager {
                let content = message["content"] as? String {
                 return content
             } else {
-                print("Failed to parse image analysis response")
+                print("[ERROR] Failed to parse image analysis response")
                 if let responseString = String(data: data, encoding: .utf8) {
-                    print("Raw response: \(responseString)")
+                    print("[DEBUG] Raw response: \(responseString)")
                 }
                 return nil
             }
         } catch {
-            print("Error parsing JSON: \(error)")
+            print("[ERROR] Error parsing JSON: \(error)")
             return nil
         }
     }
@@ -130,7 +130,7 @@ class AIManager {
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, 200...299 ~= httpResponse.statusCode else {
-            print("HTTP request failed: \(response)")
+            print("[ERROR] HTTP request failed: \(response)")
             throw NSError(domain: "AIManager", code: 3, userInfo: [NSLocalizedDescriptionKey: "HTTP request failed"])
         }
         
@@ -141,7 +141,7 @@ class AIManager {
            let content = message["content"] as? String {
             return content
         } else {
-            print("Failed to parse summarization response. Raw data: \(String(data: data, encoding: .utf8) ?? "Unable to convert data to string")")
+            print("[ERROR] Failed to parse summarization response. Raw data: \(String(data: data, encoding: .utf8) ?? "Unable to convert data to string")")
             throw NSError(domain: "AIManager", code: 4, userInfo: [NSLocalizedDescriptionKey: "Unable to parse summarization response"])
         }
     }
@@ -157,7 +157,7 @@ class AIManager {
             return image
         }
         
-        print("Failed to load image: \(fileName)")
+        print("[ERROR] Failed to load image: \(fileName)")
         return nil
     }
     
@@ -191,7 +191,7 @@ class AIManager {
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, 200...299 ~= httpResponse.statusCode else {
-            print("HTTP request failed: \(response)")
+            print("[ERROR] HTTP request failed: \(response)")
             throw NSError(domain: "AIManager", code: 0, userInfo: [NSLocalizedDescriptionKey: "Server error"])
         }
         
@@ -199,31 +199,39 @@ class AIManager {
            let transcription = json["text"] as? String {
             return transcription
         } else {
-            print("Failed to parse transcription response. Raw data: \(String(data: data, encoding: .utf8) ?? "Unable to convert data to string")")
+            print("[ERROR] Failed to parse transcription response. Raw data: \(String(data: data, encoding: .utf8) ?? "Unable to convert data to string")")
             throw NSError(domain: "AIManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to parse transcription response"])
         }
     }
     
+    @MainActor
     func organizeAndPlanNotes(_ notes: [NoteItem]) async throws -> [NoteItem] {
         var messages: [[String: Any]] = [
             [
                 "role": "system",
                 "content": """
-                    You are a highly innovative and intelligent assistant designed to analyze, organize, and enhance notes for maximum utility. Your response must strictly adhere to the JSON format. Follow these rules:
+                You are an intelligent assistant designed to analyze and organize notes. Please reorganize the notes according to the following JSON format:
 
-                    - Always respond with a valid JSON array of objects.
-                    - Each object in the array should have the structure:
-                      {
-                          "content": "The content of the note"
-                      }
-                    - Use the same language as the input, ensuring clarity and conciseness.
-                    - If a note is unclear or ambiguous, include it verbatim as the "content" without modification.
-                    - For lengthy or complex notes with multiple points, split them into smaller, actionable items, with each point represented as a separate object.
-                    - If applicable, refine and organize the notes to make them more actionable or helpful while preserving their original intent.
-                    - Do not include any plain English commentary, explanations, or additional text outside the JSON format.
-                    - Ensure every response strictly adheres to these rules and is valid JSON.
-                    - Your goal is to make people's lives easier by presenting organized, actionable notes in an efficient and user-friendly format.
-                    """
+                [
+                    {
+                        "content": "First note or task"
+                    },
+                    {
+                        "content": "Second note or task"
+                    }
+                ]
+
+                Key Requirements:
+                1. Response must follow the exact JSON format above
+                2. Maintain the original language of the notes
+                3. Integrate image descriptions into relevant notes
+                4. Integrate audio transcriptions into relevant notes
+                5. Each note should be concise and actionable
+                6. Return an empty array [] if unable to process notes
+
+                Example response:
+                [{"content":"Complete math homework"},{"content":"Prepare for English exam"}]
+                """
             ]
         ]
         
@@ -234,19 +242,25 @@ class AIManager {
             case .photo(let fileName):
                 if let image = loadImage(fileName: fileName),
                    let description = try await analyzeImage(image) {
-                    messages.append(["role": "user", "content": "Image: \(description)"])
+                    messages.append(["role": "user", "content": "Image content: \(description)"])
                 }
             case .audio(_, _):
                 if let transcription = note.transcription {
-                    messages.append(["role": "user", "content": "Audio: \(transcription)"])
+                    messages.append(["role": "user", "content": "Audio content: \(transcription)"])
                 }
             }
         }
         
-        messages.append(["role": "user", "content": "Please analyze these notes, summarize them, and create a simple, actionable list of tasks or points in the specified JSON format. Do not respond in other format, only JSON."])
+        messages.append(["role": "user", "content": "Please analyze these notes, summarize them, and create a simple list of tasks or points. Respond only in the specified JSON format."])
         
         let organizedContent = try await sendOrganizationRequest(messages: messages)
-        return convertJSONToNoteItems(organizedContent)
+        let organizedNotes = convertJSONToNoteItems(organizedContent)
+        
+        if organizedNotes.isEmpty {
+            throw NSError(domain: "AIManager", code: 5, userInfo: [NSLocalizedDescriptionKey: "Unable to process note content"])
+        }
+        
+        return organizedNotes
     }
     
     private func sendOrganizationRequest(messages: [[String: Any]]) async throws -> String {
@@ -261,11 +275,20 @@ class AIManager {
         
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
         
+        print("[INFO] Sending request to API")
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse, 200...299 ~= httpResponse.statusCode else {
-            print("HTTP request failed: \(response)")
+            print("[ERROR] HTTP request failed: \(response)")
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("[DEBUG] Response data: \(responseString)")
+            }
             throw NSError(domain: "AIManager", code: 3, userInfo: [NSLocalizedDescriptionKey: "HTTP request failed"])
+        }
+        
+        print("[INFO] Received API response")
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("[DEBUG] Raw response: \(responseString)")
         }
         
         if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
@@ -273,28 +296,32 @@ class AIManager {
            let firstChoice = choices.first,
            let message = firstChoice["message"] as? [String: Any],
            let content = message["content"] as? String {
+            print("[INFO] Successfully parsed content")
             return content
         } else {
-            print("Failed to parse organization response. Raw data: \(String(data: data, encoding: .utf8) ?? "Unable to convert data to string")")
-            throw NSError(domain: "AIManager", code: 4, userInfo: [NSLocalizedDescriptionKey: "Unable to parse organization response"])
+            print("[ERROR] Failed to parse organization response")
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("[DEBUG] Raw data: \(responseString)")
+            }
+            throw NSError(domain: "AIManager", code: 4, userInfo: [NSLocalizedDescriptionKey: "Unable to parse API response"])
         }
     }
     
     private func convertJSONToNoteItems(_ jsonString: String) -> [NoteItem] {
-        guard let jsonData = jsonString.data(using: .utf8) else {
-            print("Failed to convert JSON string to data")
-            return []
-        }
-
+        print("[INFO] Converting response to note items")
+        let cleanedString = jsonString
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "```json", with: "")
+            .replacingOccurrences(of: "```", with: "")
+        
         do {
             let decoder = JSONDecoder()
-            let organizedNotes = try decoder.decode([OrganizedNote].self, from: jsonData)
-            
-            return organizedNotes.map { organizedNote in
-                return NoteItem(type: .text(organizedNote.content), isCompleted: false)
-            }
+            let notes = try decoder.decode([OrganizedNote].self, from: cleanedString.data(using: .utf8)!)
+            print("[INFO] Successfully converted \(notes.count) notes")
+            return notes.map { NoteItem(type: .text($0.content)) }
         } catch {
-            print("Error decoding JSON: \(error)")
+            print("[ERROR] JSON decoding failed: \(error)")
+            print("[DEBUG] Cleaned string: \(cleanedString)")
             return []
         }
     }

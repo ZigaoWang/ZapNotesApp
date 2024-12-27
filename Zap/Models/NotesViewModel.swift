@@ -24,6 +24,10 @@ class NotesViewModel: ObservableObject {
     @Published var showingCamera = false
     @Published var isOrganizing = false
     @Published var isTranscribing = false
+    @Published var previousNoteState: [NoteItem]? = nil
+    @Published var canUndo = false
+    @Published var organizationStatus: String = ""
+    @Published var showOrganizationProgress = false
     
     private var audioRecorder: AVAudioRecorder?
     private var audioFileURL: URL?
@@ -293,25 +297,89 @@ func transcribeAudioNote(_ note: NoteItem) async {
     }
     
     func organizeAndPlanNotes() {
+        guard !notes.isEmpty else {
+            errorMessage = "No notes available to organize"
+            return
+        }
+        
         Task {
             do {
-                self.isOrganizing = true
-                self.errorMessage = nil
-                let organizedNotes = try await AIManager.shared.organizeAndPlanNotes(notes)
                 await MainActor.run {
-                    self.notes = organizedNotes // Replace existing notes
-                    saveNotes() // Save immediately after updating
+                    self.isOrganizing = true
+                    self.errorMessage = nil
+                    self.showOrganizationProgress = true
+                    self.organizationStatus = "Analyzing notes..."
+                }
+                
+                // Store current state before organizing
+                let currentNotes = self.notes
+                
+                // Add a small delay to show the progress
+                try await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+                
+                await MainActor.run {
+                    self.organizationStatus = "Reorganizing notes..."
+                }
+                
+                let organizedNotes = try await AIManager.shared.organizeAndPlanNotes(notes)
+                
+                await MainActor.run {
+                    if !organizedNotes.isEmpty {
+                        self.organizationStatus = "Successfully reorganized \(organizedNotes.count) notes"
+                        self.previousNoteState = currentNotes
+                        self.notes = organizedNotes
+                        self.canUndo = true
+                        saveNotes()
+                        
+                        // Hide the progress after a short delay
+                        Task {
+                            try await Task.sleep(nanoseconds: 1_500_000_000) // 1.5 seconds
+                            await MainActor.run {
+                                self.showOrganizationProgress = false
+                            }
+                        }
+                    } else {
+                        self.organizationStatus = "Organization failed"
+                        self.errorMessage = "Unable to process notes. Please try adding more detailed content."
+                        
+                        // Hide the error after 3 seconds
+                        Task {
+                            try await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
+                            await MainActor.run {
+                                self.errorMessage = nil
+                            }
+                        }
+                    }
                     self.isOrganizing = false
+                    self.showOrganizationProgress = false
                 }
             } catch {
                 await MainActor.run {
+                    self.organizationStatus = "Error occurred"
                     self.errorMessage = "Failed to organize notes: \(error.localizedDescription)"
                     self.isOrganizing = false
+                    self.showOrganizationProgress = false
+                    
+                    // Hide the error after 3 seconds
+                    Task {
+                        try await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
+                        await MainActor.run {
+                            self.errorMessage = nil
+                        }
+                    }
                 }
             }
         }
     }
 
+    func undoOrganization() {
+        guard let previousState = previousNoteState else { return }
+        notes = previousState
+        saveNotes()
+        previousNoteState = nil
+        canUndo = false
+    }
+    
     func updateNote(_ updatedNote: NoteItem) {
         if let index = notes.firstIndex(where: { $0.id == updatedNote.id }) {
             notes[index] = updatedNote

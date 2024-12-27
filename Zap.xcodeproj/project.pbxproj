@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A25117902CB6B0F400E1139A /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = A251178F2CB6B0F400E1139A /* OpenAI */; };
 		A293D0B12C9B0941005F0A3C /* ZapApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A293D0B02C9B0941005F0A3C /* ZapApp.swift */; };
 		A293D0B52C9B0942005F0A3C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A293D0B42C9B0942005F0A3C /* Assets.xcassets */; };
 		A293D0B82C9B0942005F0A3C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A293D0B72C9B0942005F0A3C /* Preview Assets.xcassets */; };
@@ -76,7 +75,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A25117902CB6B0F400E1139A /* OpenAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,7 +135,6 @@
 			);
 			name = Zap;
 			packageProductDependencies = (
-				A251178F2CB6B0F400E1139A /* OpenAI */,
 			);
 			productName = Zap;
 			productReference = A293D0AD2C9B0941005F0A3C /* Zap.app */;
@@ -168,7 +165,6 @@
 			);
 			mainGroup = A293D0A42C9B0941005F0A3C;
 			packageReferences = (
-				A251178E2CB6B0F400E1139A /* XCRemoteSwiftPackageReference "OpenAI" */,
 			);
 			productRefGroup = A293D0AE2C9B0941005F0A3C /* Products */;
 			projectDirPath = "";
@@ -422,22 +418,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		A251178E2CB6B0F400E1139A /* XCRemoteSwiftPackageReference "OpenAI" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/MacPaw/OpenAI";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.3.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		A251178F2CB6B0F400E1139A /* OpenAI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A251178E2CB6B0F400E1139A /* XCRemoteSwiftPackageReference "OpenAI" */;
-			productName = OpenAI;
-		};
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A293D0A52C9B0941005F0A3C /* Project object */;
