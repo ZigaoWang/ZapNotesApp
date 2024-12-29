@@ -14,25 +14,25 @@ struct SettingsView: View {
                 Section {
                     NavigationLink(destination: AppearanceSettingsView()) {
                         SettingsRowView(
-                            title: "Appearance",
+                            title: NSLocalizedString("Appearance", comment: "Settings appearance section"),
                             icon: "paintbrush.fill",
                             iconColor: .purple,
-                            description: "Customize theme, colors and text size"
+                            description: NSLocalizedString("Customize theme, colors and text size", comment: "Settings appearance description")
                         )
                     }
                     
                     NavigationLink(destination: AboutHelpView()) {
                         SettingsRowView(
-                            title: "About & Help",
+                            title: NSLocalizedString("About & Help", comment: "Settings about section"),
                             icon: "info.circle.fill",
                             iconColor: .blue,
-                            description: "App information and support"
+                            description: NSLocalizedString("App information and support", comment: "Settings about description")
                         )
                     }
                 }
                 .listRowBackground(Color(.secondarySystemGroupedBackground))
             }
-            .navigationTitle("Settings")
+            .navigationTitle(NSLocalizedString("Settings", comment: "Settings screen title"))
             .listStyle(InsetGroupedListStyle())
         }
     }

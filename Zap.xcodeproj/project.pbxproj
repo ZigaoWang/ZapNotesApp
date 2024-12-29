@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A2479BA12D210EDE007C0F7D /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A2479BA02D210EDE007C0F7D /* InfoPlist.xcstrings */; };
+		A2479BA32D210EDE007C0F7D /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A2479BA22D210EDE007C0F7D /* Localizable.xcstrings */; };
 		A293D0B12C9B0941005F0A3C /* ZapApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A293D0B02C9B0941005F0A3C /* ZapApp.swift */; };
 		A293D0B52C9B0942005F0A3C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A293D0B42C9B0942005F0A3C /* Assets.xcassets */; };
 		A293D0B82C9B0942005F0A3C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A293D0B72C9B0942005F0A3C /* Preview Assets.xcassets */; };
@@ -14,6 +16,8 @@
 
 /* Begin PBXFileReference section */
 		A2378E5A2C9B16CB0041C746 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A2479BA02D210EDE007C0F7D /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
+		A2479BA22D210EDE007C0F7D /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		A293D0AD2C9B0941005F0A3C /* Zap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Zap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A293D0B02C9B0941005F0A3C /* ZapApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZapApp.swift; sourceTree = "<group>"; };
 		A293D0B42C9B0942005F0A3C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -100,6 +104,8 @@
 		A293D0AF2C9B0941005F0A3C /* Zap */ = {
 			isa = PBXGroup;
 			children = (
+				A2479BA02D210EDE007C0F7D /* InfoPlist.xcstrings */,
+				A2479BA22D210EDE007C0F7D /* Localizable.xcstrings */,
 				A2378E5A2C9B16CB0041C746 /* Info.plist */,
 				A293D0B02C9B0941005F0A3C /* ZapApp.swift */,
 				A2AF7C162C9ED0B0002DAC5A /* Views */,
@@ -162,6 +168,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = A293D0A42C9B0941005F0A3C;
 			packageReferences = (
@@ -180,7 +187,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A2479BA12D210EDE007C0F7D /* InfoPlist.xcstrings in Resources */,
 				A293D0B82C9B0942005F0A3C /* Preview Assets.xcassets in Resources */,
+				A2479BA32D210EDE007C0F7D /* Localizable.xcstrings in Resources */,
 				A293D0B52C9B0942005F0A3C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

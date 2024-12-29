@@ -12,12 +12,17 @@ struct HomeView: View {
     @StateObject var viewModel = NotesViewModel()
     @EnvironmentObject var appearanceManager: AppearanceManager
     @State private var showingSettings = false
-    @State private var selectedTab = "All"
+    @State private var selectedTab = NSLocalizedString("All", comment: "All notes tab")
     @State private var isOrganizing = false
     @State private var showingDeleteAlert = false
     @State private var noteToDelete: NoteItem?
     
-    let tabs = ["All", "Text", "Audio", "Photo"]
+    let tabs = [
+        NSLocalizedString("All", comment: "All notes tab"),
+        NSLocalizedString("Text", comment: "Text notes tab"),
+        NSLocalizedString("Audio", comment: "Audio notes tab"),
+        NSLocalizedString("Photo", comment: "Photo notes tab")
+    ]
 
     private let joystickSize: CGFloat = 160
     private let bottomPadding: CGFloat = 20
@@ -35,7 +40,7 @@ struct HomeView: View {
                                 .frame(width: 32, height: 32)
                                 .cornerRadius(8)
                             
-                            Text("Zap Notes")
+                            Text(NSLocalizedString("Zap Notes", comment: "App title"))
                                 .font(.title3.bold())
                         }
                         
@@ -214,19 +219,29 @@ struct HomeView: View {
                 viewModel.handleCapturedImage(image)
             }
         }
+        .alert(NSLocalizedString("Delete Note?", comment: "Title for delete note confirmation"), isPresented: $showingDeleteAlert) {
+            Button(NSLocalizedString("Delete", comment: "Confirm delete"), role: .destructive) {
+                if let note = noteToDelete {
+                    viewModel.deleteNote(note)
+                }
+            }
+            Button(NSLocalizedString("Cancel", comment: "Cancel delete"), role: .cancel) {}
+        } message: {
+            Text(NSLocalizedString("Are you sure you want to delete this note?", comment: "Delete note confirmation message"))
+        }
     }
     
     private var filteredNotes: [NoteItem] {
         let notes = viewModel.notes
         
         switch selectedTab {
-        case "All":
+        case NSLocalizedString("All", comment: "All notes tab"):
             return notes
-        case "Text":
+        case NSLocalizedString("Text", comment: "Text notes tab"):
             return notes.filter { if case .text = $0.type { return true } else { return false } }
-        case "Audio":
+        case NSLocalizedString("Audio", comment: "Audio notes tab"):
             return notes.filter { if case .audio = $0.type { return true } else { return false } }
-        case "Photo":
+        case NSLocalizedString("Photo", comment: "Photo notes tab"):
             return notes.filter { if case .photo = $0.type { return true } else { return false } }
         default:
             return notes
@@ -243,7 +258,7 @@ struct HomeView: View {
         if viewModel.notes.isEmpty {
             // Show a temporary alert or message when there are no notes
             withAnimation {
-                viewModel.errorMessage = "No notes to organize. Add some notes first!"
+                viewModel.errorMessage = NSLocalizedString("No notes to organize. Add some notes first!", comment: "No notes to organize message")
             }
             // Hide the message after a delay
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
@@ -279,12 +294,12 @@ struct EmptyStateView: View {
                 .font(.system(size: 60))
                 .foregroundColor(.gray)
             
-            Text("No Notes Yet")
+            Text(NSLocalizedString("No Notes Yet", comment: "No notes yet title"))
                 .font(.title2)
                 .fontWeight(.semibold)
                 .foregroundColor(.primary)
             
-            Text("Start by adding your first note using the button below")
+            Text(NSLocalizedString("Start by adding your first note using the button below", comment: "No notes yet message"))
                 .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)

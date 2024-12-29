@@ -16,26 +16,26 @@ struct AppearanceSettingsView: View {
                 ThemePickerView(selection: $appearanceManager.appTheme)
             } header: {
                 SectionHeaderView(
-                    title: "Theme",
+                    title: NSLocalizedString("Theme", comment: "Theme section header"),
                     icon: "sun.max.fill",
                     color: .orange
                 )
             }
             
             Section {
-                ColorPicker("Accent Color", selection: $appearanceManager.accentColor)
+                ColorPicker(NSLocalizedString("Accent Color", comment: "Accent color picker"), selection: $appearanceManager.accentColor)
                     .onChange(of: appearanceManager.accentColor) { newValue in
                         appearanceManager.accentColorString = newValue.toHex() ?? "blue"
                     }
             } header: {
                 SectionHeaderView(
-                    title: "Accent Color",
+                    title: NSLocalizedString("Accent Color", comment: "Accent color section header"),
                     icon: "paintpalette.fill",
                     color: appearanceManager.accentColor
                 )
             }
         }
-        .navigationTitle("Appearance")
+        .navigationTitle(NSLocalizedString("Appearance", comment: "Appearance settings title"))
     }
 }
 
@@ -43,12 +43,12 @@ struct ThemePickerView: View {
     @Binding var selection: AppearanceManager.AppTheme
     
     var body: some View {
-        Picker("App Theme", selection: $selection) {
+        Picker(NSLocalizedString("App Theme", comment: "App theme picker"), selection: $selection) {
             ForEach(AppearanceManager.AppTheme.allCases, id: \.self) { theme in
                 HStack {
                     Image(systemName: themeIcon(for: theme))
                         .foregroundColor(themeColor(for: theme))
-                    Text(theme.rawValue.capitalized)
+                    Text(themeLocalizedName(for: theme))
                 }
                 .tag(theme)
             }
@@ -69,6 +69,14 @@ struct ThemePickerView: View {
         case .light: return .orange
         case .dark: return .purple
         case .system: return .gray
+        }
+    }
+    
+    private func themeLocalizedName(for theme: AppearanceManager.AppTheme) -> String {
+        switch theme {
+        case .light: return NSLocalizedString("Light", comment: "Light theme")
+        case .dark: return NSLocalizedString("Dark", comment: "Dark theme")
+        case .system: return NSLocalizedString("System", comment: "System theme")
         }
     }
 }
