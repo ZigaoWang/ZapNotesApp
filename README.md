@@ -1,10 +1,21 @@
-# Zap App
+<div align="center">
+  <img src="https://zap-notes.com/logo.jpeg" width="100">
+  <h1>Zap App</h1>
+</div>
+
+<div align="center">
+  
+  [![](https://img.shields.io/github/issues/ZapNotesApp/Zap?style=for-the-badge)](https://github.com/ZapNotesApp/Zap/issues)
+  [![](https://img.shields.io/github/forks/ZapNotesApp/Zap?style=for-the-badge)](https://github.com/ZapNotesApp/Zap)
+  [![](https://img.shields.io/github/stars/ZapNotesApp/Zap?style=for-the-badge)](https://github.com/ZapNotesApp/Zap)
+
+</div>
 
 Zap is an AI-powered note-taking application that allows users to quickly record and analyze their thoughts, ideas, and tasks using text, voice, and photos. With advanced AI capabilities for smart summarization, image analysis, and audio transcription, Zap provides a more convenient and efficient recording experience.
 
-## TestFlight Link
+## Try Zap App
 
-https://testflight.apple.com/join/pjpeTkap
+**Testflight link:** https://testflight.apple.com/join/pjpeTkap
 
 ## Demo
 
@@ -25,18 +36,18 @@ https://github.com/user-attachments/assets/2e0aa81f-5dff-4b64-8a88-0de32c48b56c
 
 ## Features
 
-- Multi-modal input: Text, voice, and photo capture
-- AI-powered note summarization
-- Image analysis and description
-- Smart audio transcription
-- Note management (add, edit, delete, mark as complete)
-- Customizable appearance settings
+- ✨ Multi-modal input: Text, voice, and photo capture
+- 🤖 AI-powered note summarization
+- 🌆 Image analysis and description
+- 🎤 Smart audio transcription
+- 📋 Note management (add, edit, delete, mark as complete)
+- 🎨 Customizable appearance settings
 
 ## Planned Features
 
-- Enhanced AI-powered categorization and tagging
-- Cross-platform synchronization
-- Multi-platform support
+- 🏷 Enhanced AI-powered categorization and tagging
+- 🔁 Cross-platform synchronization
+- ✅ Multi-platform support
 
 ## Project Structure
 
@@ -79,13 +90,13 @@ type: subject
 - For detailed explanations, add a blank line after the subject.
 
 ### Commit Types:
-- `feat`: New feature
-- `fix`: Bug fix
-- `refactor`: Code refactoring
-- `docs`: Documentation changes
-- `style`: Code style changes (not CSS)
-- `test`: Test case modifications
-- `chore`: Other changes (e.g., build process, dependencies)
+- `feat`:  New feature
+- `fix`:  Bug fix
+- `refactor`:  Code refactoring
+- `docs`:  Documentation changes
+- `style`:  Code style changes (not CSS)
+- `test`:  Test case modifications
+- `chore`:  Other changes (e.g., build process, dependencies)
 
 ### Examples:
 ```
