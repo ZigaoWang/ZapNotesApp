@@ -145,40 +145,31 @@ struct NoteRowView: View {
     }
 
     private var noteContent: some View {
-        Group {
+        VStack {
             switch note.type {
             case .text(let content):
                 VStack(alignment: .leading) {
                     Text(content)
-                        .lineLimit(isExpanded ? nil : 2)
                         .foregroundColor(.white)
+                        .lineLimit(isExpanded ? nil : 3)
                         .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.2)) {
+                            withAnimation {
                                 isExpanded.toggle()
                             }
                         }
-                    if content.count > 100 && !isExpanded {
-                        Button(action: {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                isExpanded.toggle()
-                            }
-                        }) {
-                            Text("Show More")
-                                .font(.caption)
-                                .foregroundColor(.white.opacity(0.8))
-                        }
-                    } else if isExpanded {
-                        Button(action: {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                isExpanded.toggle()
-                            }
-                        }) {
-                            Text("Show Less")
-                                .font(.caption)
-                                .foregroundColor(.white.opacity(0.8))
-                        }
-                    }
                 }
+            case .photo(let fileName):
+                let url = getDocumentsDirectory().appendingPathComponent(fileName)
+                Image(uiImage: UIImage(contentsOfFile: url.path) ?? UIImage())
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: 200)
+                    .cornerRadius(8)
+                    .contentShape(Rectangle()) // Define precise tap area
+                    .onTapGesture {
+                        showFullScreen = true
+                    }
+                    .zIndex(1) // Lower z-index for image
             case .audio(_, _):
                 VStack(alignment: .leading, spacing: 4) {
                     AudioPlayerInlineView(note: note)
@@ -217,20 +208,6 @@ struct NoteRowView: View {
                         }
                     }
                 }
-            case .photo(let fileName):
-                ZStack(alignment: .leading) {
-                    ImagePreviewView(fileName: fileName)
-                        .frame(height: 70)
-                        .cornerRadius(10)
-                        .contentShape(Rectangle())
-                        .allowsHitTesting(true)
-                        .onTapGesture {
-                            if !isEditing {
-                                showFullScreen = true
-                            }
-                        }
-                }
-                .allowsHitTesting(!isEditing)
             }
         }
     }
@@ -274,11 +251,14 @@ struct NoteRowView: View {
             viewModel.deleteNote(note)
         }) {
             Image(systemName: "trash")
-                .font(.system(size: 16))
                 .foregroundColor(.white)
         }
-        .buttonStyle(PlainButtonStyle())
-        .allowsHitTesting(true)
+        .zIndex(3) // Highest z-index for delete button
+    }
+
+    private func getDocumentsDirectory() -> URL {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        return paths[0]
     }
 }
 
