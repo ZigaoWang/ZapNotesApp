@@ -1,21 +1,45 @@
-<div align="center">
-  <img src="https://zap-notes.com/logo.jpeg" width="100">
-  <h1>Zap App</h1>
-</div>
+<h1 align="center">
+  <img src="https://zap-notes.com/logo.jpeg" alt="Logo" width="128" style="border-radius: 50%;">
+  <br />
+  Zap App
+</h1>
+
+<p align="center">
+  <a href="https://zap-notes.com">Website</a>
+  ·
+  <a href="https://testflight.apple.com/join/pjpeTkap">TestFlight</a>
+  ·
+  <a href="https://github.com/ZapNotesApp/Zap/releases">Releases</a>
+  <br />
+  <br />
+  AI-powered note-taking application for recording and analyzing thoughts, ideas, and tasks.
+</p>
 
 <div align="center">
-  
-  [![](https://img.shields.io/github/issues/ZapNotesApp/Zap?style=for-the-badge)](https://github.com/ZapNotesApp/Zap/issues)
-  [![](https://img.shields.io/github/forks/ZapNotesApp/Zap?style=for-the-badge)](https://github.com/ZapNotesApp/Zap)
-  [![](https://img.shields.io/github/stars/ZapNotesApp/Zap?style=for-the-badge)](https://github.com/ZapNotesApp/Zap)
-
+  <a href="https://github.com/ZapNotesApp/Zap/network/members">
+    <img src="https://img.shields.io/github/forks/ZapNotesApp/Zap" alt="Forks">
+  </a>
+  <a href="https://github.com/ZapNotesApp/Zap/stargazers">
+    <img src="https://img.shields.io/github/stars/ZapNotesApp/Zap" alt="Stars">
+  </a>
+  <a href="https://github.com/ZapNotesApp/Zap/issues">
+    <img src="https://img.shields.io/github/issues/ZapNotesApp/Zap" alt="Issues">
+  </a>
+  <a href="https://github.com/ZapNotesApp/Zap/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-GPLv3-blue" alt="License">
+  </a>
+  <a href="https://github.com/ZapNotesApp/Zap">
+    <img src="https://img.shields.io/github/repo-size/ZapNotesApp/Zap" alt="Repo Size">
+  </a>
+  <a href="https://github.com/ZapNotesApp/Zap-backend">
+    <img src="https://img.shields.io/badge/Backend-Code-green" alt="Backend Code">
+  </a>
 </div>
 
-Zap is an AI-powered note-taking application that allows users to quickly record and analyze their thoughts, ideas, and tasks using text, voice, and photos. With advanced AI capabilities for smart summarization, image analysis, and audio transcription, Zap provides a more convenient and efficient recording experience.
 
 ## Try Zap App
 
-**Testflight link:** https://testflight.apple.com/join/pjpeTkap
+**TestFlight link:** https://testflight.apple.com/join/pjpeTkap
 
 ## Demo
 
@@ -30,9 +54,7 @@ Zap is an AI-powered note-taking application that allows users to quickly record
   </tr>
 </table>
 
-
 https://github.com/user-attachments/assets/2e0aa81f-5dff-4b64-8a88-0de32c48b56c
-
 
 ## Features
 
@@ -127,3 +149,4 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 ## Contact
 
 Contact Zigao Wang at a@zigao.wang, or open an issue: https://github.com/ZapNotesApp/Zap/issues
+
