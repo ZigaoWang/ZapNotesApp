@@ -54,7 +54,11 @@
   </tr>
 </table>
 
-https://github.com/user-attachments/assets/2e0aa81f-5dff-4b64-8a88-0de32c48b56c
+
+
+https://github.com/user-attachments/assets/2e255ff0-29e8-4d3b-8e83-38bc0f9988f3
+
+
 
 ## Features
 
