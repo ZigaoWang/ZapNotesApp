@@ -8,6 +8,14 @@
 import SwiftUI
 import AVKit
 
+// Icon size constants
+enum IconSize {
+    static let small: CGFloat = 16
+    static let medium: CGFloat = 24
+    static let large: CGFloat = 32
+    static let extraLarge: CGFloat = 100
+}
+
 struct StrikethroughModifier: ViewModifier {
     let isCompleted: Bool
     

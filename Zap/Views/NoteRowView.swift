@@ -136,7 +136,9 @@ struct NoteRowView: View {
                     isEditing.toggle()
                 }) {
                     Image(systemName: isEditing ? "checkmark.circle" : "pencil")
-                        .font(.system(size: 16))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: IconSize.small, height: IconSize.small)
                         .foregroundColor(.white)
                 }
                 .buttonStyle(PlainButtonStyle())

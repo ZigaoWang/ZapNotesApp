@@ -16,7 +16,7 @@ struct CommandButton: View {
     @State private var activeButton: Int? = nil
     
     private let hapticImpact = UIImpactFeedbackGenerator(style: .medium)
-    private let buttonSize: CGFloat = 32
+    private let buttonSize: CGFloat = IconSize.large
     
     var body: some View {
         GeometryReader { geometry in

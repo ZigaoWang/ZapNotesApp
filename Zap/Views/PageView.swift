@@ -18,7 +18,7 @@ struct PageView: View {
                     Image(systemName: pages[index].iconName)
                         .resizable()
                         .scaledToFit()
-                        .frame(height: 100)
+                        .frame(height: IconSize.extraLarge)
                         .padding()
 
                     Text(pages[index].title)
