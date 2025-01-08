@@ -33,13 +33,15 @@ struct TextInputView: View {
                 )
                 .alert(isPresented: $showingCancelAlert) {
                     Alert(
-                        title: Text("Discard Changes?"),
-                        message: Text("Are you sure you want to discard your note?"),
-                        primaryButton: .destructive(Text("Discard")) {
+                        title: Text("Discard Changes?")
+                            .foregroundColor(.primary),
+                        message: Text("Are you sure you want to discard your note?")
+                            .foregroundColor(.primary),
+                        primaryButton: .destructive(Text("Discard").foregroundColor(.red)) {
                             content = ""
                             onSave()
                         },
-                        secondaryButton: .cancel()
+                        secondaryButton: .cancel(Text("Cancel").foregroundColor(.accentColor))
                     )
                 }
         }

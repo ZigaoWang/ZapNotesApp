@@ -142,11 +142,11 @@ struct HomeView: View {
                         VStack(spacing: 20) {
                             ProgressView()
                                 .scaleEffect(1.2)
-                                .tint(.white)
+                                .tint(Color(.systemBackground))
                             
                             Text(viewModel.organizationStatus)
                                 .font(.headline)
-                                .foregroundColor(.white)
+                                .foregroundColor(Color(.systemBackground))
                                 .multilineTextAlignment(.center)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -154,7 +154,7 @@ struct HomeView: View {
                         .padding(.vertical, 25)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .fill(Color(.systemBackground).opacity(0.95))
+                                .fill(appearanceManager.accentColor.opacity(0.95))
                                 .shadow(color: Color.black.opacity(0.2), radius: 15, x: 0, y: 10)
                         )
                         .padding(.horizontal, 40)
@@ -225,9 +225,13 @@ struct HomeView: View {
                     viewModel.deleteNote(note)
                 }
             }
+            .foregroundColor(.red)
+            
             Button(NSLocalizedString("Cancel", comment: "Cancel delete"), role: .cancel) {}
+                .foregroundColor(appearanceManager.accentColor)
         } message: {
             Text(NSLocalizedString("Are you sure you want to delete this note?", comment: "Delete note confirmation message"))
+                .foregroundColor(.primary)
         }
     }
     
