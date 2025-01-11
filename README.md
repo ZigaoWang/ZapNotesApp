@@ -1,45 +1,42 @@
 <h1 align="center">
   <img src="https://zap-notes.com/logo.jpeg" alt="Logo" width="128" style="border-radius: 50%;">
   <br />
-  Zap App
+  Zap Notes App
 </h1>
 
 <p align="center">
   <a href="https://zap-notes.com">Website</a>
   ·
-  <a href="https://testflight.apple.com/join/pjpeTkap">TestFlight</a>
-  ·
-  <a href="https://github.com/ZapNotesApp/Zap/releases">Releases</a>
+  <a href="https://github.com/ZapNotesApp/ZapNotesApp/releases">Releases</a>
   <br />
   <br />
   AI-powered note-taking application for recording and analyzing thoughts, ideas, and tasks.
 </p>
 
 <div align="center">
-  <a href="https://github.com/ZapNotesApp/Zap/network/members">
-    <img src="https://img.shields.io/github/forks/ZapNotesApp/Zap" alt="Forks">
+  <a href="https://github.com/ZapNotesApp/ZapNotesApp/network/members">
+    <img src="https://img.shields.io/github/forks/ZapNotesApp/ZapNotesApp" alt="Forks">
   </a>
-  <a href="https://github.com/ZapNotesApp/Zap/stargazers">
-    <img src="https://img.shields.io/github/stars/ZapNotesApp/Zap" alt="Stars">
+  <a href="https://github.com/ZapNotesApp/ZapNotesApp/stargazers">
+    <img src="https://img.shields.io/github/stars/ZapNotesApp/ZapNotesApp" alt="Stars">
   </a>
-  <a href="https://github.com/ZapNotesApp/Zap/issues">
-    <img src="https://img.shields.io/github/issues/ZapNotesApp/Zap" alt="Issues">
+  <a href="https://github.com/ZapNotesApp/ZapNotesApp/issues">
+    <img src="https://img.shields.io/github/issues/ZapNotesApp/ZapNotesApp" alt="Issues">
   </a>
-  <a href="https://github.com/ZapNotesApp/Zap/blob/main/LICENSE">
+  <a href="https://github.com/ZapNotesApp/ZapNotesApp/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-GPLv3-blue" alt="License">
   </a>
-  <a href="https://github.com/ZapNotesApp/Zap">
-    <img src="https://img.shields.io/github/repo-size/ZapNotesApp/Zap" alt="Repo Size">
+  <a href="https://github.com/ZapNotesApp/ZapNotesApp">
+    <img src="https://img.shields.io/github/repo-size/ZapNotesApp/ZapNotesApp" alt="Repo Size">
   </a>
-  <a href="https://github.com/ZapNotesApp/Zap-backend">
+  <a href="https://github.com/ZapNotesApp/ZapNotesApp-backend">
     <img src="https://img.shields.io/badge/Backend-Code-green" alt="Backend Code">
   </a>
 </div>
 
+## Try Zap Notes App
 
-## Try Zap App
-
-**TestFlight link:** https://testflight.apple.com/join/pjpeTkap
+The TestFlight link is no longer available as the app is no longer in beta. It is currently preparing to be released on the App Store—stay tuned for updates!
 
 ## Demo
 
@@ -54,11 +51,7 @@
   </tr>
 </table>
 
-
-
 https://github.com/user-attachments/assets/2e255ff0-29e8-4d3b-8e83-38bc0f9988f3
-
-
 
 ## Features
 
@@ -87,7 +80,7 @@ The project is organized into several key components:
 - `FullScreenMediaView.swift`: Full-screen media viewing
 - `AppearanceSettingsView.swift`: Customizable appearance settings
 - `AIManager.swift`: Handles AI-related operations (summarization, image analysis, transcription)
-- Backend code: [GitHub Repo](https://github.com/ZapNotesApp/Zap-backend)
+- Backend code: [GitHub Repo](https://github.com/ZapNotesApp/ZapNotesApp-backend)
 
 ## For AI or Contributors
 
@@ -152,5 +145,4 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Contact
 
-Contact Zigao Wang at a@zigao.wang, or open an issue: https://github.com/ZapNotesApp/Zap/issues
-
+Contact Zigao Wang at a@zigao.wang, or open an issue: https://github.com/ZapNotesApp/ZapNotesApp/issues
