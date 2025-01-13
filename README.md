@@ -36,7 +36,9 @@
 
 ## Try Zap Notes App
 
-The TestFlight link is no longer available as the app is no longer in beta. It is currently preparing to be released on the App Store—stay tuned for updates!
+<a href="https://apps.apple.com/us/app/zap-notes/id6740298881">
+  <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" style="width:150px;">
+</a>
 
 ## Demo
 
