@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "•" : {
+
+    },
     "About" : {
       "localizations" : {
         "zh-Hans" : {
@@ -284,7 +287,11 @@
         }
       }
     },
+    "GitHub" : {
+
+    },
     "GitHub Repository" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -314,6 +321,9 @@
         }
       }
     },
+    "License" : {
+
+    },
     "Light" : {
       "comment" : "Light theme",
       "localizations" : {
@@ -326,6 +336,7 @@
       }
     },
     "More Links" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -365,6 +376,9 @@
         }
       }
     },
+    "Next" : {
+
+    },
     "No notes to organize. Add some notes first!" : {
       "comment" : "No notes to organize message"
     },
@@ -380,6 +394,7 @@
       }
     },
     "Official Website" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -619,6 +634,7 @@
       }
     },
     "Zigao Wang's Profile" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {

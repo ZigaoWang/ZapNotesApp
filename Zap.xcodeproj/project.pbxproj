@@ -44,7 +44,6 @@
 				NoteRowView.swift,
 				OnboardingView.swift,
 				PageControl.swift,
-				PageView.swift,
 				PrivacyPolicyView.swift,
 				SavedNotesView.swift,
 				SettingsView.swift,
