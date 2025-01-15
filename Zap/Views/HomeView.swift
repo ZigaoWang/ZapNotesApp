@@ -130,6 +130,7 @@ struct HomeView: View {
                         }
                     }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
                 // Organization progress overlay
                 if viewModel.showOrganizationProgress {
@@ -194,7 +195,19 @@ struct HomeView: View {
                 }
             }
             .navigationBarHidden(true)
+            
+            #if !os(iOS)
+            // Add a detail view placeholder for iPad and Mac
+            Text("Select a note")
+                .font(.title)
+                .foregroundColor(.secondary)
+            #endif
         }
+        #if os(iOS)
+        .navigationViewStyle(StackNavigationViewStyle())
+        #else
+        .navigationViewStyle(DoubleColumnNavigationViewStyle())
+        #endif
         .accentColor(appearanceManager.accentColor)
         .environmentObject(viewModel)
         .sheet(isPresented: $showingSettings) {
