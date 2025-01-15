@@ -12,38 +12,77 @@ struct TextInputView: View {
     var onSave: () -> Void
     @State private var showingCancelAlert = false
     @Environment(\.presentationMode) var presentationMode
+    @FocusState private var isFocused: Bool
 
     var body: some View {
-        NavigationView {
-            TextEditor(text: $content)
-                .padding()
-                .navigationBarTitle("New Note", displayMode: .inline)
-                .navigationBarItems(
-                    leading: Button("Cancel") {
-                        if !content.isEmpty {
-                            showingCancelAlert = true
-                        } else {
-                            content = ""
-                            onSave()
-                        }
-                    },
-                    trailing: Button("Save") {
+        ZStack {
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    if !content.isEmpty {
+                        showingCancelAlert = true
+                    } else {
+                        content = ""
                         onSave()
                     }
-                )
-                .alert(isPresented: $showingCancelAlert) {
-                    Alert(
-                        title: Text("Discard Changes?")
-                            .foregroundColor(.primary),
-                        message: Text("Are you sure you want to discard your note?")
-                            .foregroundColor(.primary),
-                        primaryButton: .destructive(Text("Discard").foregroundColor(.red)) {
-                            content = ""
-                            onSave()
-                        },
-                        secondaryButton: .cancel(Text("Cancel").foregroundColor(.accentColor))
-                    )
                 }
+            
+            VStack(spacing: 0) {
+                Spacer()
+                
+                VStack(spacing: 0) {
+                    HStack {
+                        Button("Cancel") {
+                            if !content.isEmpty {
+                                showingCancelAlert = true
+                            } else {
+                                content = ""
+                                onSave()
+                            }
+                        }
+                        .foregroundColor(.red)
+                        
+                        Spacer()
+                        
+                        Text("New Note")
+                            .font(.headline)
+                        
+                        Spacer()
+                        
+                        Button("Save") {
+                            onSave()
+                        }
+                        .foregroundColor(.blue)
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 12)
+                    
+                    Divider()
+                    
+                    TextField("Write something...", text: $content)
+                        .font(.body)
+                        .padding(.horizontal)
+                        .padding(.vertical, 12)
+                        .focused($isFocused)
+                        .multilineTextAlignment(.leading)
+                }
+                .background(Color(.systemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 12)
+        }
+        .onAppear {
+            isFocused = true
+        }
+        .alert("Discard Changes?", isPresented: $showingCancelAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Discard", role: .destructive) {
+                content = ""
+                onSave()
+            }
+        } message: {
+            Text("Are you sure you want to discard your note?")
         }
     }
 }

@@ -367,6 +367,7 @@
       }
     },
     "New Text Note" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -621,6 +622,9 @@
           }
         }
       }
+    },
+    "Write something..." : {
+
     },
     "Zap Notes" : {
       "comment" : "App title",

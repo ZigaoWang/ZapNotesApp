@@ -200,15 +200,6 @@ struct HomeView: View {
         .sheet(isPresented: $showingSettings) {
             SettingsView().environmentObject(appearanceManager)
         }
-        .sheet(isPresented: $viewModel.showingTextInput) {
-            TextInputView(content: $viewModel.textInputContent) {
-                if !viewModel.textInputContent.isEmpty {
-                    viewModel.addTextNote(viewModel.textInputContent)
-                }
-                viewModel.textInputContent = ""
-                viewModel.showingTextInput = false
-            }
-        }
         .sheet(isPresented: $viewModel.showingImagePicker) {
             ImagePicker(sourceType: .photoLibrary) { image in
                 viewModel.handleCapturedImage(image)
@@ -217,6 +208,18 @@ struct HomeView: View {
         .sheet(isPresented: $viewModel.showingCamera) {
             ImagePicker(sourceType: .camera) { image in
                 viewModel.handleCapturedImage(image)
+            }
+        }
+        .overlay {
+            if viewModel.showingTextInput {
+                TextInputView(content: $viewModel.textInputContent) {
+                    if !viewModel.textInputContent.isEmpty {
+                        viewModel.addTextNote(viewModel.textInputContent)
+                    }
+                    viewModel.textInputContent = ""
+                    viewModel.showingTextInput = false
+                }
+                .transition(.move(edge: .bottom))
             }
         }
         .alert(NSLocalizedString("Delete Note?", comment: "Title for delete note confirmation"), isPresented: $showingDeleteAlert) {
