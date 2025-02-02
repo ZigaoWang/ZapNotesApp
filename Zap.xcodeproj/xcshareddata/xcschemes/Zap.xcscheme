@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A293D0AC2C9B0941005F0A3C"
-               BuildableName = "Zap.app"
-               BlueprintName = "Zap"
+               BuildableName = "Zap Notes.app"
+               BlueprintName = "Zap Notes"
                ReferencedContainer = "container:Zap.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A293D0AC2C9B0941005F0A3C"
-            BuildableName = "Zap.app"
-            BlueprintName = "Zap"
+            BuildableName = "Zap Notes.app"
+            BlueprintName = "Zap Notes"
             ReferencedContainer = "container:Zap.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -69,8 +69,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A293D0AC2C9B0941005F0A3C"
-            BuildableName = "Zap.app"
-            BlueprintName = "Zap"
+            BuildableName = "Zap Notes.app"
+            BlueprintName = "Zap Notes"
             ReferencedContainer = "container:Zap.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

@@ -67,7 +67,7 @@ struct CommandButton: View {
                                 .frame(width: buttonSize, height: buttonSize)
                                 .foregroundColor(isRecording ? .red : .blue)
                         )
-                        .scaleEffect(isRecording ? 1.1 : 1.0)
+                        .scaleEffect(isRecording ? 1.2 : 1.0)
                         .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isRecording)
                         .gesture(
                             DragGesture(minimumDistance: 0)
