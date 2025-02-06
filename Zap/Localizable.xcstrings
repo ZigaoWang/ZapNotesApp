@@ -2,7 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "•" : {
-
+      "shouldTranslate" : false
     },
     "About" : {
       "localizations" : {
@@ -288,7 +288,7 @@
       }
     },
     "GitHub" : {
-
+      "shouldTranslate" : false
     },
     "GitHub Repository" : {
       "extractionState" : "stale",
@@ -322,7 +322,14 @@
       }
     },
     "License" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版权许可证"
+          }
+        }
+      }
     },
     "Light" : {
       "comment" : "Light theme",
@@ -378,10 +385,25 @@
       }
     },
     "Next" : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续"
+          }
+        }
+      }
     },
     "No notes to organize. Add some notes first!" : {
-      "comment" : "No notes to organize message"
+      "comment" : "No notes to organize message",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有笔记可以整理。先加一些笔记吧！"
+          }
+        }
+      }
     },
     "No Notes Yet" : {
       "comment" : "No notes yet title",
@@ -624,7 +646,14 @@
       }
     },
     "Write something..." : {
-
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写一点什么…"
+          }
+        }
+      }
     },
     "Zap Notes" : {
       "comment" : "App title",
