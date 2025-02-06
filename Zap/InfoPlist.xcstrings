@@ -31,7 +31,7 @@
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Zap 笔记"
           }
         }
@@ -39,18 +39,18 @@
     },
     "NSCameraUsageDescription" : {
       "comment" : "Privacy - Camera Usage Description",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Zap needs access to your camera to take new photos and videos."
+            "state" : "translated",
+            "value" : "Zap Notes needs access to your camera to take new photos and videos for your notes."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zap 需要访问您的相机以拍摄新的照片和视频。"
+            "value" : "Zap 笔记需要访问您的相机来拍摄新的照片和视频。"
           }
         }
       }
@@ -75,54 +75,54 @@
     },
     "NSMicrophoneUsageDescription" : {
       "comment" : "Privacy - Microphone Usage Description",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Zap needs access to your microphone to record audio notes."
+            "state" : "translated",
+            "value" : "Zap Notes needs access to your microphone to record audio notes."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zap 需要访问您的麦克风以录制语音笔记。"
+            "value" : "Zap 笔记需要访问您的麦克风来录制音频笔记。"
           }
         }
       }
     },
     "NSPhotoLibraryUsageDescription" : {
       "comment" : "Privacy - Photo Library Usage Description",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Zap needs access to your photo library to save photos and videos."
+            "state" : "translated",
+            "value" : "Zap Notes needs access to your photo library to save and organize your photos and videos."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zap 需要访问您的照片图库以保存照片和视频。"
+            "value" : "Zap 笔记需要访问您的照片库来保存和整理您的照片和视频。"
           }
         }
       }
     },
     "NSSpeechRecognitionUsageDescription" : {
       "comment" : "Privacy - Speech Recognition Usage Description",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Zap needs access to speech recognition to transcribe your audio notes."
+            "state" : "translated",
+            "value" : "Zap Notes needs access to speech recognition to transcribe your audio notes into text."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zap 需要访问语音识别功能以转录您的语音笔记。"
+            "value" : "Zap 笔记需要访问语音识别功能来将您的音频笔记转录为文字。"
           }
         }
       }
