@@ -44,8 +44,11 @@ class NotesViewModel: ObservableObject {
     private func setupAudioSession() {
         let audioSession = AVAudioSession.sharedInstance()
         do {
-            try audioSession.setCategory(.playAndRecord, mode: .default)
-            try audioSession.setActive(true)
+            // More reliable configuration with specific options
+            try audioSession.setCategory(.playAndRecord, 
+                                         mode: .default,
+                                         options: [.allowBluetooth, .allowBluetoothA2DP, .defaultToSpeaker])
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
             print("Failed to set up audio session: \(error)")
         }
@@ -100,42 +103,111 @@ class NotesViewModel: ObservableObject {
     // MARK: - Audio Recording
     
     func startRecording() {
+        // Configure audio session specifically for recording
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(.record, mode: .default, options: [.allowBluetooth])
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+            print("Failed to configure audio session for recording: \(error)")
+            return
+        }
+        
+        // Create unique filename for recording
         let audioFilename = getDocumentsDirectory().appendingPathComponent("\(UUID().uuidString).m4a")
         audioFileURL = audioFilename
         
+        // Higher quality recording settings
         let settings = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
             AVSampleRateKey: 44100,
             AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
+            AVEncoderBitRateKey: 128000
         ]
         
         do {
             audioRecorder = try AVAudioRecorder(url: audioFilename, settings: settings)
-            audioRecorder?.record()
-            isRecording = true
+            audioRecorder?.prepareToRecord() // Ensure recorder is ready
+            let success = audioRecorder?.record() ?? false
+            
+            if success {
+                isRecording = true
+                print("[INFO] Started recording to \(audioFilename.lastPathComponent)")
+            } else {
+                print("[ERROR] Failed to start recording")
+            }
         } catch {
-            print("Could not start recording: \(error)")
+            print("[ERROR] Could not start recording: \(error)")
         }
     }
     
     func stopRecording() {
-        audioRecorder?.stop()
-        isRecording = false
-        
-        if let audioURL = audioFileURL {
-            let asset = AVAsset(url: audioURL)
-            let duration = asset.duration.seconds
-            addAudioNote(fileName: audioURL.lastPathComponent, duration: duration)
-            
-            // Start transcription asynchronously
-            Task {
-                await transcribeAudioNote(NoteItem(type: .audio(audioURL.lastPathComponent, duration)))
-            }
+        guard let recorder = audioRecorder, let audioURL = audioFileURL else {
+            print("[WARNING] No active recorder or file URL found")
+            isRecording = false
+            return
         }
         
-        audioRecorder = nil
-        audioFileURL = nil
+        // Finalize recording properly
+        recorder.stop()
+        isRecording = false
+        
+        // Create a local copy of URL to avoid closure capture issues
+        let localAudioURL = audioURL
+        
+        Task { @MainActor in
+            do {
+                // Ensure audio session is deactivated properly
+                try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+                
+                // Add delay to ensure file is finalized
+                try await Task.sleep(nanoseconds: 800_000_000) // 0.8 seconds
+                
+                // Verify file exists
+                let fileManager = FileManager.default
+                guard fileManager.fileExists(atPath: localAudioURL.path) else {
+                    print("[ERROR] Audio file does not exist at path: \(localAudioURL.path)")
+                    audioRecorder = nil
+                    audioFileURL = nil
+                    return
+                }
+                
+                // Get file attributes to check size
+                let attributes = try fileManager.attributesOfItem(atPath: localAudioURL.path)
+                let fileSize = attributes[.size] as? UInt64 ?? 0
+                
+                if fileSize == 0 {
+                    print("[ERROR] Audio file is empty (0 bytes)")
+                    audioRecorder = nil
+                    audioFileURL = nil
+                    return
+                }
+                
+                // Check duration
+                let asset = AVAsset(url: localAudioURL)
+                let duration = asset.duration.seconds
+                
+                print("[INFO] Recorded audio duration: \(duration) seconds, size: \(fileSize) bytes")
+                
+                if duration > 0 {
+                    // Process valid audio file
+                    addAudioNote(fileName: localAudioURL.lastPathComponent, duration: duration)
+                    
+                    // Start transcription asynchronously
+                    Task {
+                        await transcribeAudioNote(NoteItem(type: .audio(localAudioURL.lastPathComponent, duration)))
+                    }
+                } else {
+                    print("[ERROR] Recorded audio has zero duration")
+                }
+            } catch {
+                print("[ERROR] Error finalizing recording: \(error)")
+            }
+            
+            audioRecorder = nil
+            audioFileURL = nil
+        }
     }
     
     // MARK: - Transcription

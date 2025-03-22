@@ -55,8 +55,8 @@ struct AudioNoteView: View {
     func startRecording() {
         let audioSession = AVAudioSession.sharedInstance()
         do {
-            try audioSession.setCategory(.record, mode: .default, options: [])
-            try audioSession.setActive(true)
+            try audioSession.setCategory(.record, mode: .default, options: [.allowBluetooth])
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
 
             let documentsDirectory = FileManager.default.urls(
                 for: .documentDirectory, in: .userDomainMask
@@ -67,31 +67,91 @@ struct AudioNoteView: View {
 
             let settings: [String: Any] = [
                 AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-                AVSampleRateKey: 12000,
+                AVSampleRateKey: 44100,
                 AVNumberOfChannelsKey: 1,
-                AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+                AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
+                AVEncoderBitRateKey: 128000
             ]
 
             audioRecorder = try AVAudioRecorder(url: fileURL, settings: settings)
-            audioRecorder?.record()
-
-            isRecording = true
+            audioRecorder?.prepareToRecord() // Prepare before recording
+            let success = audioRecorder?.record() ?? false
+            
+            if success {
+                isRecording = true
+                print("[INFO] Started recording to \(filename)")
+            } else {
+                print("[ERROR] Failed to start recording")
+            }
         } catch {
-            print("Recording failed: \(error.localizedDescription)")
+            print("[ERROR] Recording failed: \(error.localizedDescription)")
         }
     }
 
     func stopRecording() {
-        audioRecorder?.stop()
-        isRecording = false
-        if let url = audioFilename {
-            let fileName = url.lastPathComponent
-            let asset = AVURLAsset(url: url)
-            let duration = CMTimeGetSeconds(asset.duration)
-            viewModel.addAudioNote(fileName: fileName, duration: duration)
+        guard let recorder = audioRecorder, let url = audioFilename else {
+            print("[WARNING] No active recorder or file URL found")
+            isRecording = false
+            return
         }
-        audioRecorder = nil
-        audioFilename = nil
-        presentationMode.wrappedValue.dismiss()
+        
+        // Finalize recording properly
+        recorder.stop()
+        isRecording = false
+        
+        // Create local copy to avoid closure capture issues
+        let localURL = url
+        
+        Task { @MainActor in
+            do {
+                // Ensure audio session is deactivated properly
+                try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+                
+                // Add delay to ensure file is finalized
+                try await Task.sleep(nanoseconds: 800_000_000) // 0.8 seconds
+                
+                // Verify file exists
+                let fileManager = FileManager.default
+                guard fileManager.fileExists(atPath: localURL.path) else {
+                    print("[ERROR] Audio file does not exist at path: \(localURL.path)")
+                    audioRecorder = nil
+                    audioFilename = nil
+                    presentationMode.wrappedValue.dismiss()
+                    return
+                }
+                
+                // Get file attributes to check size
+                let attributes = try fileManager.attributesOfItem(atPath: localURL.path)
+                let fileSize = attributes[.size] as? UInt64 ?? 0
+                
+                if fileSize == 0 {
+                    print("[ERROR] Audio file is empty (0 bytes)")
+                    audioRecorder = nil
+                    audioFilename = nil
+                    presentationMode.wrappedValue.dismiss()
+                    return
+                }
+                
+                // Check duration
+                let asset = AVURLAsset(url: localURL)
+                let duration = CMTimeGetSeconds(asset.duration)
+                
+                print("[INFO] Recorded audio duration: \(duration) seconds, size: \(fileSize) bytes")
+                
+                if duration > 0 {
+                    viewModel.addAudioNote(fileName: localURL.lastPathComponent, duration: duration)
+                } else {
+                    print("[ERROR] Recorded audio has zero duration")
+                }
+                
+                presentationMode.wrappedValue.dismiss()
+            } catch {
+                print("[ERROR] Error finalizing recording: \(error)")
+                presentationMode.wrappedValue.dismiss()
+            }
+            
+            audioRecorder = nil
+            audioFilename = nil
+        }
     }
 }

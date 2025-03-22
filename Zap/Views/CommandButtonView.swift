@@ -112,13 +112,19 @@ struct CommandButton: View {
                                         }
                                     }
                                     .onEnded { _ in
-                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                            hapticImpact.impactOccurred()
-                                            viewModel.stopRecording()
-                                            isRecording = false
-                                            isExpanded = false
-                                            scale = 1.0
-                                            showRecordingPopup = false
+                                        // Only stop if we've been recording for at least 1 second
+                                        if isRecording {
+                                            // Get the recorder's current time if possible
+                                            let minDuration: TimeInterval = 1.0 // Minimum 1 second recording
+                                            
+                                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                                hapticImpact.impactOccurred()
+                                                viewModel.stopRecording()
+                                                isRecording = false
+                                                isExpanded = false
+                                                scale = 1.0
+                                                showRecordingPopup = false
+                                            }
                                         }
                                     }
                             )

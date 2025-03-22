@@ -210,53 +210,71 @@ class AIManager {
             [
                 "role": "system",
                 "content": """
-                You are an intelligent assistant designed to analyze and organize notes. Please reorganize the notes according to the following JSON format:
+                You are an intelligent assistant that helps organize and structure notes. Your task is to analyze the provided notes and create a well-organized list of concise, actionable items.
 
+                IMPORTANT: You must respond with a valid JSON array of objects, each with a "content" field. Example:
                 [
-                    {
-                        "content": "First note or task"
-                    },
-                    {
-                        "content": "Second note or task"
-                    }
+                    {"content": "First organized note or task"},
+                    {"content": "Second organized note or task"}
                 ]
 
-                Key Requirements:
-                1. Response must follow the exact JSON format above
-                2. Maintain the original language of the notes
-                3. Integrate image descriptions into relevant notes
-                4. Integrate audio transcriptions into relevant notes
-                5. Each note should be concise and actionable
-                6. Return an empty array [] if unable to process notes
+                Follow these guidelines:
+                1. Preserve the original meaning and intent of the notes
+                2. Keep the original language (English, Chinese, etc.)
+                3. Combine related information from different notes
+                4. Organize items in a logical sequence
+                5. Make each note clear, specific and actionable
+                6. Include ALL important information from the original notes
+                7. Do NOT return an empty array unless there is absolutely no content
 
-                Example response:
-                [{"content":"Complete math homework"},{"content":"Prepare for English exam"}]
+                Remember to ONLY output valid JSON in the exact format shown above.
                 """
             ]
         ]
         
-        for note in notes {
+        // Debug: Print number of notes being processed
+        print("[DEBUG] Processing \(notes.count) notes for organization")
+        
+        var noteContent = ""
+        
+        // First, collect all note content into a single string for better context
+        for (index, note) in notes.enumerated() {
             switch note.type {
             case .text(let content):
-                messages.append(["role": "user", "content": content])
+                noteContent += "Note \(index+1) (Text): \(content)\n\n"
             case .photo(let fileName):
                 if let image = loadImage(fileName: fileName),
                    let description = try await analyzeImage(image) {
-                    messages.append(["role": "user", "content": "Image content: \(description)"])
+                    noteContent += "Note \(index+1) (Image): \(description)\n\n"
                 }
             case .audio(_, _):
                 if let transcription = note.transcription {
-                    messages.append(["role": "user", "content": "Audio content: \(transcription)"])
+                    noteContent += "Note \(index+1) (Audio): \(transcription)\n\n"
                 }
             }
         }
         
-        messages.append(["role": "user", "content": "Please analyze these notes, summarize them, and create a simple list of tasks or points. Respond only in the specified JSON format."])
+        // Only add content if we have something meaningful
+        if !noteContent.isEmpty {
+            messages.append(["role": "user", "content": noteContent])
+            messages.append([
+                "role": "user", 
+                "content": "Please organize the above notes into a structured list. Format your response as a JSON array of objects with 'content' fields. Each item should be clear and actionable."
+            ])
+        } else {
+            // If no content, throw an error
+            print("[ERROR] No content found in notes to organize")
+            throw NSError(domain: "AIManager", code: 6, userInfo: [NSLocalizedDescriptionKey: "No content found in notes to organize"])
+        }
+        
+        // Debug: Print final message structure (without full content)
+        print("[DEBUG] Sending \(messages.count) messages to API")
         
         let organizedContent = try await sendOrganizationRequest(messages: messages)
         let organizedNotes = convertJSONToNoteItems(organizedContent)
         
         if organizedNotes.isEmpty {
+            print("[ERROR] Received empty response or failed to parse response")
             throw NSError(domain: "AIManager", code: 5, userInfo: [NSLocalizedDescriptionKey: "Unable to process note content"])
         }
         
@@ -270,60 +288,149 @@ class AIManager {
         
         let requestBody: [String: Any] = [
             "messages": messages,
-            "max_tokens": 1000
+            "max_tokens": 1000,
+            "model": "gpt-4o-mini" // Explicitly specify model to ensure consistency
         ]
         
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
         
         print("[INFO] Sending request to API")
-        let (data, response) = try await URLSession.shared.data(for: request)
+        print("[DEBUG] Request URL: \(request.url?.absoluteString ?? "unknown")")
         
-        guard let httpResponse = response as? HTTPURLResponse, 200...299 ~= httpResponse.statusCode else {
-            print("[ERROR] HTTP request failed: \(response)")
+        // Start tracking time for performance measurement
+        let startTime = Date()
+        let (data, response) = try await URLSession.shared.data(for: request)
+        let responseTime = Date().timeIntervalSince(startTime)
+        
+        print("[DEBUG] API response time: \(String(format: "%.2f", responseTime)) seconds")
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print("[ERROR] Response is not HTTPURLResponse")
+            throw NSError(domain: "AIManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+        }
+        
+        print("[DEBUG] Response status code: \(httpResponse.statusCode)")
+        
+        guard 200...299 ~= httpResponse.statusCode else {
+            print("[ERROR] HTTP request failed with status code: \(httpResponse.statusCode)")
             if let responseString = String(data: data, encoding: .utf8) {
-                print("[DEBUG] Response data: \(responseString)")
+                print("[DEBUG] Error response data: \(responseString)")
             }
-            throw NSError(domain: "AIManager", code: 3, userInfo: [NSLocalizedDescriptionKey: "HTTP request failed"])
+            throw NSError(domain: "AIManager", code: 3, userInfo: [
+                NSLocalizedDescriptionKey: "HTTP request failed with status \(httpResponse.statusCode)"
+            ])
         }
         
         print("[INFO] Received API response")
-        if let responseString = String(data: data, encoding: .utf8) {
-            print("[DEBUG] Raw response: \(responseString)")
+        let responseString = String(data: data, encoding: .utf8) ?? "Unable to decode response"
+        print("[DEBUG] Raw response: \(responseString)")
+        
+        // Validate that we received a non-empty response
+        guard !responseString.isEmpty else {
+            print("[ERROR] Received empty response from API")
+            throw NSError(domain: "AIManager", code: 7, userInfo: [NSLocalizedDescriptionKey: "Empty response from API"])
         }
         
-        if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-           let choices = json["choices"] as? [[String: Any]],
-           let firstChoice = choices.first,
-           let message = firstChoice["message"] as? [String: Any],
-           let content = message["content"] as? String {
+        do {
+            guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
+                print("[ERROR] Response is not a valid JSON object")
+                throw NSError(domain: "AIManager", code: 4, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON response"])
+            }
+            
+            guard let choices = json["choices"] as? [[String: Any]], !choices.isEmpty else {
+                print("[ERROR] No choices found in response")
+                throw NSError(domain: "AIManager", code: 4, userInfo: [NSLocalizedDescriptionKey: "No choices in response"])
+            }
+            
+            guard let firstChoice = choices.first,
+                  let message = firstChoice["message"] as? [String: Any],
+                  let content = message["content"] as? String else {
+                print("[ERROR] Could not extract content from response")
+                throw NSError(domain: "AIManager", code: 4, userInfo: [NSLocalizedDescriptionKey: "Unable to extract content"])
+            }
+            
             print("[INFO] Successfully parsed content")
             return content
-        } else {
-            print("[ERROR] Failed to parse organization response")
-            if let responseString = String(data: data, encoding: .utf8) {
-                print("[DEBUG] Raw data: \(responseString)")
-            }
-            throw NSError(domain: "AIManager", code: 4, userInfo: [NSLocalizedDescriptionKey: "Unable to parse API response"])
+        } catch {
+            print("[ERROR] Failed to parse organization response: \(error.localizedDescription)")
+            throw NSError(domain: "AIManager", code: 4, userInfo: [NSLocalizedDescriptionKey: "Unable to parse API response: \(error.localizedDescription)"])
         }
     }
     
     private func convertJSONToNoteItems(_ jsonString: String) -> [NoteItem] {
         print("[INFO] Converting response to note items")
-        let cleanedString = jsonString
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .replacingOccurrences(of: "```json", with: "")
-            .replacingOccurrences(of: "```", with: "")
         
+        // Attempt to extract JSON data if it's wrapped in markdown code blocks or has other text
+        var cleanedString = jsonString.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Try to find JSON array pattern
+        if let jsonStart = cleanedString.range(of: "\\[\\s*{", options: .regularExpression),
+           let jsonEnd = cleanedString.range(of: "}\\s*\\]", options: .regularExpression, range: jsonStart.upperBound..<cleanedString.endIndex) {
+            
+            let startIndex = jsonStart.lowerBound
+            let endIndex = jsonEnd.upperBound
+            cleanedString = String(cleanedString[startIndex..<endIndex])
+            print("[DEBUG] Extracted JSON array: \(cleanedString)")
+        } else {
+            // If we can't find pattern, just clean up markdown and try with whole string
+            cleanedString = cleanedString
+                .replacingOccurrences(of: "```json", with: "")
+                .replacingOccurrences(of: "```", with: "")
+        }
+        
+        // Try multiple approaches to decode the JSON
+        var organizedNotes: [OrganizedNote] = []
+        
+        // First attempt - try directly as an array
         do {
             let decoder = JSONDecoder()
-            let notes = try decoder.decode([OrganizedNote].self, from: cleanedString.data(using: .utf8)!)
-            print("[INFO] Successfully converted \(notes.count) notes")
-            return notes.map { NoteItem(type: .text($0.content)) }
+            organizedNotes = try decoder.decode([OrganizedNote].self, from: cleanedString.data(using: .utf8)!)
+            print("[INFO] Successfully parsed JSON array directly")
         } catch {
-            print("[ERROR] JSON decoding failed: \(error)")
-            print("[DEBUG] Cleaned string: \(cleanedString)")
-            return []
+            print("[DEBUG] First parsing attempt failed: \(error.localizedDescription)")
+            
+            // Second attempt - try to parse as if the content is embedded in another object
+            if cleanedString.contains("\"content\"") {
+                do {
+                    // Try to extract just the content field values and create an array manually
+                    let pattern = "\"content\"\\s*:\\s*\"([^\"]*)\"" 
+                    let regex = try NSRegularExpression(pattern: pattern)
+                    let nsString = cleanedString as NSString
+                    let matches = regex.matches(in: cleanedString, range: NSRange(location: 0, length: nsString.length))
+                    
+                    organizedNotes = matches.compactMap { match -> OrganizedNote? in
+                        if match.numberOfRanges > 1 {
+                            let contentRange = match.range(at: 1)
+                            let content = nsString.substring(with: contentRange)
+                            return OrganizedNote(content: content)
+                        }
+                        return nil
+                    }
+                    
+                    if !organizedNotes.isEmpty {
+                        print("[INFO] Successfully extracted \(organizedNotes.count) notes using regex")
+                    }
+                } catch {
+                    print("[DEBUG] Regex extraction failed: \(error.localizedDescription)")
+                }
+            }
+            
+            // If both attempts failed and we have something that might be plain text
+            if organizedNotes.isEmpty && !cleanedString.isEmpty {
+                // Final fallback - treat as plain text notes separated by line breaks
+                let lines = cleanedString
+                    .components(separatedBy: .newlines)
+                    .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+                
+                if !lines.isEmpty {
+                    print("[INFO] Treating response as plain text with \(lines.count) lines")
+                    organizedNotes = lines.map { OrganizedNote(content: $0) }
+                }
+            }
         }
+        
+        print("[INFO] Successfully converted \(organizedNotes.count) notes")
+        return organizedNotes.map { NoteItem(type: .text($0.content)) }
     }
 }
 
