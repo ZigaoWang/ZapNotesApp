@@ -9,18 +9,16 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject var viewModel = NotesViewModel()
-    @StateObject var appearanceManager = AppearanceManager()
+    @EnvironmentObject var appearanceManager: AppearanceManager
     @State private var isOnboarding: Bool = !UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
 
     var body: some View {
         if isOnboarding {
             OnboardingView(isOnboarding: $isOnboarding)
                 .environmentObject(viewModel)
-                .environmentObject(appearanceManager)
         } else {
             HomeView()
                 .environmentObject(viewModel)
-                .environmentObject(appearanceManager)
                 .preferredColorScheme(appearanceManager.colorScheme)
                 .accentColor(appearanceManager.accentColor)
                 .onAppear {

@@ -311,6 +311,9 @@
         }
       }
     },
+    "Hold to record" : {
+      "comment" : "Hold recording mode"
+    },
     "Image not found" : {
       "localizations" : {
         "zh-Hans" : {
@@ -490,6 +493,9 @@
         }
       }
     },
+    "Recording Mode" : {
+      "comment" : "Recording mode picker\nRecording mode section header"
+    },
     "Recording..." : {
       "localizations" : {
         "zh-Hans" : {
@@ -573,6 +579,9 @@
         }
       }
     },
+    "Tap mode: Press once to start recording and again to stop. Hold mode: Press and hold to record, release to stop." : {
+      "comment" : "Recording mode explanation"
+    },
     "Tap to Record" : {
       "localizations" : {
         "zh-Hans" : {
@@ -582,6 +591,9 @@
           }
         }
       }
+    },
+    "Tap to start/stop" : {
+      "comment" : "Tap recording mode"
     },
     "Terms of Service" : {
       "localizations" : {

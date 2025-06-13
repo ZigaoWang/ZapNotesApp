@@ -10,10 +10,29 @@ import SwiftUI
 class AppearanceManager: ObservableObject {
     @AppStorage("appTheme") var appTheme: AppTheme = .system
     @AppStorage("accentColorString") var accentColorString: String = "blue"
+    @AppStorage("recordingMode") var recordingMode: RecordingMode = .tap
     @Published var accentColor: Color = .blue
     
     enum AppTheme: String, CaseIterable {
         case light, dark, system
+    }
+    
+    enum RecordingMode: String, CaseIterable {
+        case tap, hold
+        
+        var description: String {
+            switch self {
+            case .tap: return NSLocalizedString("Tap to start/stop", comment: "Tap recording mode")
+            case .hold: return NSLocalizedString("Hold to record", comment: "Hold recording mode")
+            }
+        }
+        
+        var icon: String {
+            switch self {
+            case .tap: return "touchid"
+            case .hold: return "hand.tap.fill"
+            }
+        }
     }
     
     init() {

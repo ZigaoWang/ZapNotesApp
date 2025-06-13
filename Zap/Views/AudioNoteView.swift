@@ -78,7 +78,10 @@ struct AudioNoteView: View {
             let success = audioRecorder?.record() ?? false
             
             if success {
-                isRecording = true
+                // Update UI state on main thread
+                DispatchQueue.main.async {
+                    self.isRecording = true
+                }
                 print("[INFO] Started recording to \(filename)")
             } else {
                 print("[ERROR] Failed to start recording")
@@ -91,13 +94,20 @@ struct AudioNoteView: View {
     func stopRecording() {
         guard let recorder = audioRecorder, let url = audioFilename else {
             print("[WARNING] No active recorder or file URL found")
-            isRecording = false
+            // Update UI state on main thread
+            DispatchQueue.main.async {
+                self.isRecording = false
+            }
             return
         }
         
         // Finalize recording properly
         recorder.stop()
-        isRecording = false
+        
+        // Update UI state on main thread
+        DispatchQueue.main.async {
+            self.isRecording = false
+        }
         
         // Create local copy to avoid closure capture issues
         let localURL = url

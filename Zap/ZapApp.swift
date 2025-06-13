@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct ZapApp: App {
+    // Initialize the AppearanceManager at the app level
+    @StateObject private var appearanceManager = AppearanceManager()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(appearanceManager)
                 #if os(macOS)
                 .frame(minWidth: 800, minHeight: 600)
                 #endif

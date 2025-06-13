@@ -132,7 +132,10 @@ class NotesViewModel: ObservableObject {
             let success = audioRecorder?.record() ?? false
             
             if success {
-                isRecording = true
+                // Update UI state on main thread
+                DispatchQueue.main.async {
+                    self.isRecording = true
+                }
                 print("[INFO] Started recording to \(audioFilename.lastPathComponent)")
             } else {
                 print("[ERROR] Failed to start recording")
@@ -145,13 +148,20 @@ class NotesViewModel: ObservableObject {
     func stopRecording() {
         guard let recorder = audioRecorder, let audioURL = audioFileURL else {
             print("[WARNING] No active recorder or file URL found")
-            isRecording = false
+            // Update UI state on main thread
+            DispatchQueue.main.async {
+                self.isRecording = false
+            }
             return
         }
         
         // Finalize recording properly
         recorder.stop()
-        isRecording = false
+        
+        // Update UI state on main thread
+        DispatchQueue.main.async {
+            self.isRecording = false
+        }
         
         // Create a local copy of URL to avoid closure capture issues
         let localAudioURL = audioURL
@@ -212,10 +222,10 @@ class NotesViewModel: ObservableObject {
     
     // MARK: - Transcription
     
-func transcribeAudioNote(_ note: NoteItem) async {
+    func transcribeAudioNote(_ note: NoteItem) async {
         guard case .audio(let fileName, _) = note.type else { return }
 
-        // 在主线程上更新对应笔记的 isTranscribing 状态为 true
+        // Update the note's isTranscribing state on the main thread
         await MainActor.run {
             if let index = notes.firstIndex(where: { $0.id == note.id }) {
                 notes[index].isTranscribing = true
@@ -227,7 +237,7 @@ func transcribeAudioNote(_ note: NoteItem) async {
             let audioFileURL = getDocumentsDirectory().appendingPathComponent(fileName)
             let transcription = try await AIManager.shared.transcribeAudio(url: audioFileURL)
 
-            // 更新转录内容，并将 isTranscribing 设为 false
+            // Update the transcription content on the main thread
             await MainActor.run {
                 if let index = notes.firstIndex(where: { $0.id == note.id }) {
                     notes[index].transcription = transcription
@@ -237,7 +247,7 @@ func transcribeAudioNote(_ note: NoteItem) async {
             }
         } catch {
             print("Error transcribing audio: \(error)")
-            // 确保在发生错误时也将 isTranscribing 设为 false
+            // Ensure isTranscribing is set to false on error
             await MainActor.run {
                 if let index = notes.firstIndex(where: { $0.id == note.id }) {
                     notes[index].isTranscribing = false

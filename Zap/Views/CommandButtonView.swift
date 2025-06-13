@@ -10,6 +10,7 @@ import AVFoundation
 
 struct CommandButton: View {
     @ObservedObject var viewModel: NotesViewModel
+    @EnvironmentObject var appearanceManager: AppearanceManager
     @Environment(\.colorScheme) var colorScheme
     @State private var isRecording = false
     @State private var isExpanded = false
@@ -84,7 +85,7 @@ struct CommandButton: View {
                         
                         Spacer()
                         
-                        // Audio Button with Long Press Gesture
+                        // Audio Button with mode-dependent gesture
                         Circle()
                             .fill(isRecording ? Color.red.opacity(0.15) : Color.blue.opacity(0.15))
                             .frame(width: 50, height: 50)
@@ -98,11 +99,61 @@ struct CommandButton: View {
                             .scaleEffect(scale)
                             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: scale)
                             .gesture(
+                                appearanceManager.recordingMode == .hold ?
+                                // Hold to record gesture
                                 DragGesture(minimumDistance: 0)
                                     .onChanged { _ in
                                         if !isRecording {
-                                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                                hapticImpact.impactOccurred()
+                                            hapticImpact.impactOccurred()
+                                            
+                                            // Start recording on main thread
+                                            DispatchQueue.main.async {
+                                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                                    viewModel.startRecording()
+                                                    isRecording = true
+                                                    isExpanded = true
+                                                    scale = 1.2
+                                                    showRecordingPopup = true
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .onEnded { _ in
+                                        // Only stop if we've been recording
+                                        if isRecording {
+                                            hapticImpact.impactOccurred()
+                                            
+                                            // Stop recording on main thread
+                                            DispatchQueue.main.async {
+                                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                                    viewModel.stopRecording()
+                                                    isRecording = false
+                                                    isExpanded = false
+                                                    scale = 1.0
+                                                    showRecordingPopup = false
+                                                }
+                                            }
+                                        }
+                                    }
+                                : nil
+                            )
+                            .onTapGesture {
+                                // Only use tap gesture for tap mode
+                                if appearanceManager.recordingMode == .tap {
+                                    hapticImpact.impactOccurred()
+                                    
+                                    // Handle tap on main thread
+                                    DispatchQueue.main.async {
+                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                            if isRecording {
+                                                // Stop recording
+                                                viewModel.stopRecording()
+                                                isRecording = false
+                                                isExpanded = false
+                                                scale = 1.0
+                                                showRecordingPopup = false
+                                            } else {
+                                                // Start recording
                                                 viewModel.startRecording()
                                                 isRecording = true
                                                 isExpanded = true
@@ -111,23 +162,8 @@ struct CommandButton: View {
                                             }
                                         }
                                     }
-                                    .onEnded { _ in
-                                        // Only stop if we've been recording for at least 1 second
-                                        if isRecording {
-                                            // Get the recorder's current time if possible
-                                            let minDuration: TimeInterval = 1.0 // Minimum 1 second recording
-                                            
-                                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                                hapticImpact.impactOccurred()
-                                                viewModel.stopRecording()
-                                                isRecording = false
-                                                isExpanded = false
-                                                scale = 1.0
-                                                showRecordingPopup = false
-                                            }
-                                        }
-                                    }
-                            )
+                                }
+                            }
                         
                         Spacer()
                     }
@@ -166,9 +202,11 @@ struct CommandButton_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             CommandButton(viewModel: NotesViewModel())
+                .environmentObject(AppearanceManager())
                 .preferredColorScheme(.light)
                 .frame(height: 140)
             CommandButton(viewModel: NotesViewModel())
+                .environmentObject(AppearanceManager())
                 .preferredColorScheme(.dark)
                 .frame(height: 140)
         }

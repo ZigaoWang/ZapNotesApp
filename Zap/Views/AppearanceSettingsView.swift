@@ -34,6 +34,20 @@ struct AppearanceSettingsView: View {
                     color: appearanceManager.accentColor
                 )
             }
+            
+            Section {
+                RecordingModePickerView(selection: $appearanceManager.recordingMode)
+            } header: {
+                SectionHeaderView(
+                    title: NSLocalizedString("Recording Mode", comment: "Recording mode section header"),
+                    icon: "mic.fill",
+                    color: .blue
+                )
+            } footer: {
+                Text(NSLocalizedString("Tap mode: Press once to start recording and again to stop. Hold mode: Press and hold to record, release to stop.", comment: "Recording mode explanation"))
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+            }
         }
         .navigationTitle(NSLocalizedString("Appearance", comment: "Appearance settings title"))
     }
@@ -78,6 +92,24 @@ struct ThemePickerView: View {
         case .dark: return NSLocalizedString("Dark", comment: "Dark theme")
         case .system: return NSLocalizedString("System", comment: "System theme")
         }
+    }
+}
+
+struct RecordingModePickerView: View {
+    @Binding var selection: AppearanceManager.RecordingMode
+    
+    var body: some View {
+        Picker(NSLocalizedString("Recording Mode", comment: "Recording mode picker"), selection: $selection) {
+            ForEach(AppearanceManager.RecordingMode.allCases, id: \.self) { mode in
+                HStack {
+                    Image(systemName: mode.icon)
+                        .foregroundColor(.blue)
+                    Text(mode.description)
+                }
+                .tag(mode)
+            }
+        }
+        .pickerStyle(.menu)
     }
 }
 
