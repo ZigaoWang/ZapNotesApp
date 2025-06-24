@@ -44,7 +44,7 @@ struct AppearanceSettingsView: View {
                     color: .blue
                 )
             } footer: {
-                Text(NSLocalizedString("Tap mode: Press once to start recording and again to stop. Hold mode: Press and hold to record, release to stop.", comment: "Recording mode explanation"))
+                Text(NSLocalizedString("Tap mode: Press once to start recording and again to stop. \nHold mode: Press and hold to record, release to stop.", comment: "Recording mode explanation"))
                     .font(.footnote)
                     .foregroundColor(.secondary)
             }
@@ -63,6 +63,7 @@ struct ThemePickerView: View {
                     Image(systemName: themeIcon(for: theme))
                         .foregroundColor(themeColor(for: theme))
                     Text(themeLocalizedName(for: theme))
+                        .padding(.leading)
                 }
                 .tag(theme)
             }

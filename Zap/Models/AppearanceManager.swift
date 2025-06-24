@@ -22,8 +22,8 @@ class AppearanceManager: ObservableObject {
         
         var description: String {
             switch self {
-            case .tap: return NSLocalizedString("Tap to start/stop", comment: "Tap recording mode")
-            case .hold: return NSLocalizedString("Hold to record", comment: "Hold recording mode")
+            case .tap: return NSLocalizedString("Tap", comment: "Tap recording mode")
+            case .hold: return NSLocalizedString("Hold", comment: "Hold recording mode")
             }
         }
         
@@ -102,6 +102,7 @@ extension Color {
         }
 
         if a != Float(1.0) {
+            
             return String(format: "%02lX%02lX%02lX%02lX", lroundf(r * 255), lroundf(g * 255), lroundf(b * 255), lroundf(a * 255))
         } else {
             return String(format: "%02lX%02lX%02lX", lroundf(r * 255), lroundf(g * 255), lroundf(b * 255))
