@@ -150,7 +150,7 @@ struct OnboardingView: View {
                     } else {
                         Button(action: {
                             // Guard to prevent index overflow with rapid taps on button
-                            guard currentPage < pages.count - 1 else { return; }
+                            guard currentPage < pages.count - 1 else { return }
                             withAnimation {
                                 currentPage += 1
                             }
