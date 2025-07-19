@@ -48,12 +48,12 @@
       }
     },
     "App information and support" : {
-      "comment" : "Settings about description",
+      "comment" : "About section description",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "应用信息与支持"
+            "value" : "应用信息和支持"
           }
         }
       }
@@ -69,18 +69,8 @@
         }
       }
     },
-    "App Version" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "应用版本"
-          }
-        }
-      }
-    },
     "Appearance" : {
-      "comment" : "Appearance settings title\nSettings appearance section",
+      "comment" : "Appearance settings title",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -90,40 +80,29 @@
         }
       }
     },
-    "Are you sure you want to delete this note?" : {
-      "comment" : "Delete note confirmation message",
+    "Appearance Settings" : {
+      "comment" : "Appearance settings navigation title",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "确定要删除这条笔记吗？"
+            "value" : "外观设置"
           }
         }
       }
     },
-    "Are you sure you want to discard your note?" : {
+    "Auto" : {
+      "comment" : "Auto theme",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "确定要放弃您的笔记吗？"
-          }
-        }
-      }
-    },
-    "Audio" : {
-      "comment" : "Audio notes tab",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "语音"
+            "value" : "自动"
           }
         }
       }
     },
     "Cancel" : {
-      "comment" : "Cancel delete",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -133,53 +112,34 @@
         }
       }
     },
-    "Complete" : {
+    "Copy" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "完成"
+            "value" : "复制"
           }
         }
       }
     },
-    "Contact Support" : {
+    "Create Note" : {
+      "comment" : "Create note button",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "联系支持"
+            "value" : "创建笔记"
           }
         }
       }
     },
-    "Created by Zigao Wang" : {
+    "Customize app appearance and recording mode" : {
+      "comment" : "Appearance section description",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "由王子高创建"
-          }
-        }
-      }
-    },
-    "Credits" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "致谢"
-          }
-        }
-      }
-    },
-    "Customize theme, colors and text size" : {
-      "comment" : "Settings appearance description",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自定义主题、颜色和文字大小"
+            "value" : "自定义应用外观和录音模式"
           }
         }
       }
@@ -196,7 +156,6 @@
       }
     },
     "Delete" : {
-      "comment" : "Confirm delete",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -206,48 +165,29 @@
         }
       }
     },
-    "Delete Note?" : {
-      "comment" : "Title for delete note confirmation",
+    "Delete Note" : {
+      "comment" : "Delete note action",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "删除笔记？"
+            "value" : "删除笔记"
           }
         }
       }
     },
-    "Discard" : {
+    "Edit" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "放弃"
-          }
-        }
-      }
-    },
-    "Discard Changes?" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "放弃更改？"
-          }
-        }
-      }
-    },
-    "Done" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "完成"
+            "value" : "编辑"
           }
         }
       }
     },
     "Edit Note" : {
+      "comment" : "Edit note action",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -257,22 +197,23 @@
         }
       }
     },
-    "FAQs" : {
+    "Error" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "常见问题"
+            "value" : "错误"
           }
         }
       }
     },
-    "Feedback" : {
+    "Error creating note: %@" : {
+      "comment" : "Error creating note message",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "反馈"
+            "value" : "创建笔记时出错：%@"
           }
         }
       }
@@ -288,15 +229,11 @@
       }
     },
     "GitHub" : {
-      "shouldTranslate" : false
-    },
-    "GitHub Repository" : {
-      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "GitHub 仓库"
+            "value" : "GitHub"
           }
         }
       }
@@ -349,7 +286,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "版权许可证"
+            "value" : "许可证"
           }
         }
       }
@@ -365,44 +302,12 @@
         }
       }
     },
-    "More Links" : {
-      "extractionState" : "stale",
+    "Multi-Model Input" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "更多链接"
-          }
-        }
-      }
-    },
-    "New Audio Note" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "新建语音笔记"
-          }
-        }
-      }
-    },
-    "New Note" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "新建笔记"
-          }
-        }
-      }
-    },
-    "New Text Note" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "新建文本笔记"
+            "value" : "多模态输入"
           }
         }
       }
@@ -412,24 +317,24 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "继续"
+            "value" : "下一步"
           }
         }
       }
     },
-    "No notes to organize. Add some notes first!" : {
-      "comment" : "No notes to organize message",
+    "No Audio File" : {
+      "comment" : "No audio file error",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "没有笔记可以整理。先加一些笔记吧！"
+            "value" : "无音频文件"
           }
         }
       }
     },
-    "No Notes Yet" : {
-      "comment" : "No notes yet title",
+    "No notes available" : {
+      "comment" : "Empty state message",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -439,76 +344,43 @@
         }
       }
     },
-    "Official Website" : {
-      "extractionState" : "stale",
+    "No Subscriptions\nNo Ads" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "官方网站"
+            "value" : "无需订阅\n无广告"
           }
         }
       }
     },
-    "Open Source on GitHub" : {
+    "Notes" : {
+      "comment" : "Notes tab title",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在 GitHub 上开源"
+            "value" : "笔记"
           }
         }
       }
     },
-    "Organizing..." : {
-      "extractionState" : "stale",
+    "OK" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "整理中..."
+            "value" : "好"
           }
         }
       }
     },
-    "Photo" : {
-      "comment" : "Photo notes tab",
+    "Open Source & Free" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "照片"
-          }
-        }
-      }
-    },
-    "Privacy Policy" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "隐私政策"
-          }
-        }
-      }
-    },
-    "Processing..." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "处理中..."
-          }
-        }
-      }
-    },
-    "Rate the App" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "为应用评分"
+            "value" : "开源免费"
           }
         }
       }
@@ -544,18 +416,30 @@
         }
       }
     },
-    "Saved Notes" : {
+    "Search notes..." : {
+      "comment" : "Search placeholder",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "已保存笔记"
+            "value" : "搜索笔记..."
+          }
+        }
+      }
+    },
+    "Select a note to view" : {
+      "comment" : "iPad sidebar empty state",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择一个笔记来查看"
           }
         }
       }
     },
     "Settings" : {
-      "comment" : "Settings screen title",
+      "comment" : "Settings tab title",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -565,52 +449,18 @@
         }
       }
     },
-    "Show Less" : {
+    "Share" : {
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "显示更少"
+            "value" : "分享"
           }
         }
       }
     },
-    "Show More" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "显示更多"
-          }
-        }
-      }
-    },
-    "Start by adding your first note using the button below" : {
-      "comment" : "No notes yet message",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "点击下方按钮创建您的第一条笔记"
-          }
-        }
-      }
-    },
-    "System" : {
-      "comment" : "System theme",
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "跟随系统"
-          }
-        }
-      }
-    },
-    "Tap mode: Press once to start recording and again to stop. Hold mode: Press and hold to record, release to stop." : {
-      "comment" : "Recording mode explanation"
-    },
-    "Tap to Record" : {
+    "Tap to record" : {
+      "comment" : "Tap to record button",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -638,6 +488,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "单击模式：单击开始录音，再次单击停止录音\n长按模式：长按进行录音，松开停止录音"
+          }
+        }
+      }
+    },
+    "Tap to Record" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点击录音"
           }
         }
       }
@@ -674,67 +534,93 @@
         }
       }
     },
-    "To-Do List" : {
+    "Title" : {
+      "comment" : "Note title field placeholder",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "待办事项"
+            "value" : "标题"
           }
         }
       }
     },
-    "Transcribing..." : {
+    "Transcription failed. Please try again." : {
+      "comment" : "Transcription error message",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "转录中..."
+            "value" : "转录失败。请重试。"
           }
         }
       }
     },
-    "Uncomplete" : {
+    "Transcription in progress..." : {
+      "comment" : "Transcription loading message",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "标记未完成"
+            "value" : "正在转录..."
           }
         }
       }
     },
-    "Write something..." : {
+    "Type your notes here..." : {
+      "comment" : "Note content placeholder",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "写一点什么…"
+            "value" : "在此输入您的笔记..."
           }
         }
       }
     },
-    "Zap Notes" : {
-      "comment" : "App title",
+    "Unable to play audio" : {
+      "comment" : "Audio playback error",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zap 笔记"
+            "value" : "无法播放音频"
           }
         }
       }
     },
-    "Zigao Wang's Profile" : {
-      "extractionState" : "stale",
+    "Voice" : {
+      "comment" : "Voice notes tab",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "王子高的个人资料"
+            "value" : "语音"
           }
         }
       }
+    },
+    "Welcome to Zap" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "欢迎使用 Zap"
+          }
+        }
+      }
+    },
+    "无需订阅\\n无广告" : {
+      "shouldTranslate" : false
+    },
+    "欢迎使用 Zap" : {
+      "shouldTranslate" : false
+    },
+    "多模态输入" : {
+      "shouldTranslate" : false
+    },
+    "开源免费" : {
+      "shouldTranslate" : false
     }
   },
   "version" : "1.0"

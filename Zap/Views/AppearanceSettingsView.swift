@@ -82,15 +82,15 @@ struct ThemePickerView: View {
         switch theme {
         case .light: return "sun.max.fill"
         case .dark: return "moon.fill"
-        case .system: return "gear"
+        case .auto: return "circle.lefthalf.filled"
         }
     }
     
     private func themeColor(for theme: AppearanceManager.AppTheme) -> Color {
         switch theme {
         case .light: return .orange
-        case .dark: return .purple
-        case .system: return .gray
+        case .dark: return .blue
+        case .auto: return .purple
         }
     }
     
@@ -98,7 +98,7 @@ struct ThemePickerView: View {
         switch theme {
         case .light: return NSLocalizedString("Light", comment: "Light theme")
         case .dark: return NSLocalizedString("Dark", comment: "Dark theme")
-        case .system: return NSLocalizedString("System", comment: "System theme")
+        case .auto: return NSLocalizedString("Auto", comment: "Auto theme")
         }
     }
 }

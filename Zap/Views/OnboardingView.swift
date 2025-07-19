@@ -49,53 +49,57 @@ struct OnboardingView: View {
                                 .scaledToFit()
                                 .frame(width: 100, height: 100)
                                 .cornerRadius(22)
-                        } else {
-                            Image(systemName: pages[currentPage].iconSystemName ?? "")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 60, height: 60)
+                        } else if let iconName = pages[currentPage].iconSystemName {
+                            Image(systemName: iconName)
+                                .font(.system(size: 80))
                                 .foregroundColor(.blue)
                         }
                     }
-                    .padding(.bottom, 20)
                     
                     // Title and Description
-                    Text(pages[currentPage].title)
-                        .font(.system(size: 28, weight: .bold))
-                        .multilineTextAlignment(.center)
-                    
-                    if !pages[currentPage].description.isEmpty {
-                        Text(pages[currentPage].description)
-                            .font(.body)
+                    VStack(spacing: 16) {
+                        Text(pages[currentPage].title)
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
                             .multilineTextAlignment(.center)
-                            .padding(.horizontal, 32)
-                            .foregroundColor(.secondary)
+                        
+                        if !pages[currentPage].description.isEmpty {
+                            Text(pages[currentPage].description)
+                                .font(.body)
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, 40)
+                        }
                     }
                     
-                    // Multi-modal Input UI
+                    // Multi-Modal Input Icons
                     if pages[currentPage].hasMultiModalInput {
-                        HStack(spacing: 20) {
-                            ForEach(["Text", "Photos", "Voice"], id: \.self) { type in
-                                VStack {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 16)
-                                            .fill(type == "Text" ? Color.green.opacity(0.2) :
-                                                  type == "Photos" ? Color.orange.opacity(0.2) :
-                                                  Color.blue.opacity(0.2))
-                                            .frame(width: 80, height: 80)
-                                        
-                                        Image(systemName: type == "Text" ? "text.alignleft" :
-                                                          type == "Photos" ? "photo" :
-                                                          "mic.fill")
-                                            .foregroundColor(type == "Text" ? .green :
-                                                            type == "Photos" ? .orange :
-                                                            .blue)
-                                            .font(.system(size: 30))
-                                    }
-                                    Text(type)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
+                        HStack(spacing: 40) {
+                            VStack(spacing: 8) {
+                                Image(systemName: "mic.fill")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.blue)
+                                Text("Voice")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            VStack(spacing: 8) {
+                                Image(systemName: "text.alignleft")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.green)
+                                Text("Text")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            VStack(spacing: 8) {
+                                Image(systemName: "camera.fill")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.orange)
+                                Text("Photo")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
                         }
                         .padding(.top, 20)
