@@ -22,8 +22,8 @@ class AppearanceManager: ObservableObject {
         
         var description: String {
             switch self {
-            case .tap: return NSLocalizedString("Tap to start/stop", comment: "Tap recording mode")
-            case .hold: return NSLocalizedString("Hold to record", comment: "Hold recording mode")
+            case .tap: return NSLocalizedString("Tap", comment: "Tap recording mode")
+            case .hold: return NSLocalizedString("Hold", comment: "Hold recording mode")
             }
         }
         

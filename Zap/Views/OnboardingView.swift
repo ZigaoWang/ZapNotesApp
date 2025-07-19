@@ -10,6 +10,7 @@ import SwiftUI
 struct OnboardingView: View {
     @Binding var isOnboarding: Bool
     @State private var currentPage = 0
+    @State private var isAnimating = false // New state variable for animation control
     
     private let githubURL = "https://github.com/ZapNotesApp/ZapNotesApp"
     private let licenseURL = "https://github.com/ZapNotesApp/ZapNotesApp/blob/main/LICENSE"
@@ -118,8 +119,13 @@ struct OnboardingView: View {
                     // Navigation Button
                     if currentPage == pages.count - 1 {
                         Button(action: {
-                            isOnboarding = false
-                            UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                isOnboarding = false
+                            }
+                            // Use a slight delay to ensure smooth animation completion
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+                            }
                         }) {
                             Text("Get Started")
                                 .font(.headline)
@@ -133,24 +139,30 @@ struct OnboardingView: View {
                         
                         HStack(spacing: 20) {
                             Button("GitHub") {
-                                if let url = URL(string: githubURL) {
-                                    UIApplication.shared.open(url)
-                                }
+                                openURL(githubURL)
                             }
                             Text("•")
                                 .foregroundColor(.secondary)
                             Button("License") {
-                                if let url = URL(string: licenseURL) {
-                                    UIApplication.shared.open(url)
-                                }
+                                openURL(licenseURL)
                             }
                         }
                         .font(.subheadline)
                         .foregroundColor(.blue)
                     } else {
                         Button(action: {
-                            withAnimation {
+                            // Guard to prevent index overflow with rapid taps on button
+                            guard currentPage < pages.count - 1 else { return }
+                            // Additional guard to prevent multiple simultaneous animations
+                            guard !isAnimating else { return }
+                            
+                            isAnimating = true
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 currentPage += 1
+                            }
+                            // Reset animation flag after animation completes
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                isAnimating = false
                             }
                         }) {
                             Text("Next")
@@ -162,10 +174,31 @@ struct OnboardingView: View {
                                 .cornerRadius(14)
                         }
                         .padding(.horizontal, 32)
+                        .disabled(isAnimating) // Disable button during animation
                     }
                 }
                 .padding(.bottom, 40)
             }
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    /// Opens a URL with proper error handling
+    private func openURL(_ urlString: String) {
+        guard let url = URL(string: urlString) else {
+            print("⚠️ Invalid URL: \(urlString)")
+            return
+        }
+        
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url) { success in
+                if !success {
+                    print("⚠️ Failed to open URL: \(urlString)")
+                }
+            }
+        } else {
+            print("⚠️ Cannot open URL: \(urlString)")
         }
     }
 }

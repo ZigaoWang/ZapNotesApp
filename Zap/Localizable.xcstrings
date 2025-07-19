@@ -311,8 +311,28 @@
         }
       }
     },
+    "Hold" : {
+      "comment" : "Hold recording mode",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "长按"
+          }
+        }
+      }
+    },
     "Hold to record" : {
-      "comment" : "Hold recording mode"
+      "comment" : "Hold recording mode",
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按下录音"
+          }
+        }
+      }
     },
     "Image not found" : {
       "localizations" : {
@@ -494,7 +514,15 @@
       }
     },
     "Recording Mode" : {
-      "comment" : "Recording mode picker\nRecording mode section header"
+      "comment" : "Recording mode picker\nRecording mode section header",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "录音模式"
+          }
+        }
+      }
     },
     "Recording..." : {
       "localizations" : {
@@ -592,8 +620,27 @@
         }
       }
     },
-    "Tap to start/stop" : {
-      "comment" : "Tap recording mode"
+    "Tap" : {
+      "comment" : "Tap recording mode",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "单击"
+          }
+        }
+      }
+    },
+    "Tap mode: Press once to start recording and again to stop. \nHold mode: Press and hold to record, release to stop." : {
+      "comment" : "Recording mode explanation",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "单击模式：单击开始录音，再次单击停止录音\n长按模式：长按进行录音，松开停止录音"
+          }
+        }
+      }
     },
     "Terms of Service" : {
       "localizations" : {
