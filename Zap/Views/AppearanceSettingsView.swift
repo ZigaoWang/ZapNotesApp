@@ -25,8 +25,15 @@ struct AppearanceSettingsView: View {
             Section {
                 ColorPicker(NSLocalizedString("Accent Color", comment: "Accent color picker"), selection: $appearanceManager.accentColor)
                     .onChange(of: appearanceManager.accentColor) { newValue in
-                        appearanceManager.accentColorString = newValue.toHex() ?? "blue"
+                        // Improved error handling for color conversion
+                        if let hexString = newValue.toHex() {
+                            appearanceManager.accentColorString = hexString
+                        } else {
+                            print("⚠️ Failed to convert color to hex, using default blue")
+                            appearanceManager.accentColorString = "007AFF" // Default blue hex
+                        }
                     }
+                    .accessibilityLabel("Color picker for app accent color")
             } header: {
                 SectionHeaderView(
                     title: NSLocalizedString("Accent Color", comment: "Accent color section header"),
@@ -63,7 +70,7 @@ struct ThemePickerView: View {
                     Image(systemName: themeIcon(for: theme))
                         .foregroundColor(themeColor(for: theme))
                     Text(themeLocalizedName(for: theme))
-                        .padding(.leading)
+                        .padding(.leading, 8)
                 }
                 .tag(theme)
             }
@@ -75,15 +82,15 @@ struct ThemePickerView: View {
         switch theme {
         case .light: return "sun.max.fill"
         case .dark: return "moon.fill"
-        case .system: return "gear"
+        case .auto: return "circle.lefthalf.filled"
         }
     }
     
     private func themeColor(for theme: AppearanceManager.AppTheme) -> Color {
         switch theme {
         case .light: return .orange
-        case .dark: return .purple
-        case .system: return .gray
+        case .dark: return .blue
+        case .auto: return .purple
         }
     }
     
@@ -91,7 +98,7 @@ struct ThemePickerView: View {
         switch theme {
         case .light: return NSLocalizedString("Light", comment: "Light theme")
         case .dark: return NSLocalizedString("Dark", comment: "Dark theme")
-        case .system: return NSLocalizedString("System", comment: "System theme")
+        case .auto: return NSLocalizedString("Auto", comment: "Auto theme")
         }
     }
 }
@@ -105,12 +112,17 @@ struct RecordingModePickerView: View {
                 HStack {
                     Image(systemName: mode.icon)
                         .foregroundColor(.blue)
+                        .frame(width: 20) // Consistent icon sizing
                     Text(mode.description)
+                        .padding(.leading, 4)
                 }
                 .tag(mode)
+                .accessibilityLabel("\(mode.description) recording mode")
+                .accessibilityHint("Double tap to select this recording mode")
             }
         }
         .pickerStyle(.menu)
+        .accessibilityLabel("Recording mode selection")
     }
 }
 
@@ -123,10 +135,13 @@ struct SectionHeaderView: View {
         HStack(spacing: 8) {
             Image(systemName: icon)
                 .foregroundColor(color)
+                .frame(width: 20) // Consistent icon sizing
+                .accessibilityHidden(true) // Icon is decorative
             Text(title)
         }
         .textCase(nil)
         .font(.headline)
+        .accessibilityElement(children: .combine)
     }
 }
 

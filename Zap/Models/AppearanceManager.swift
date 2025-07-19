@@ -8,13 +8,13 @@
 import SwiftUI
 
 class AppearanceManager: ObservableObject {
-    @AppStorage("appTheme") var appTheme: AppTheme = .system
+    @AppStorage("appTheme") var appTheme: AppTheme = .auto
     @AppStorage("accentColorString") var accentColorString: String = "blue"
     @AppStorage("recordingMode") var recordingMode: RecordingMode = .tap
     @Published var accentColor: Color = .blue
     
     enum AppTheme: String, CaseIterable {
-        case light, dark, system
+        case light, dark, auto
     }
     
     enum RecordingMode: String, CaseIterable {
@@ -43,7 +43,7 @@ class AppearanceManager: ObservableObject {
         switch appTheme {
         case .light: return .light
         case .dark: return .dark
-        case .system: return nil
+        case .auto: return nil
         }
     }
     

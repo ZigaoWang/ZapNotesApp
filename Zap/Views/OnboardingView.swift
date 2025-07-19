@@ -10,6 +10,7 @@ import SwiftUI
 struct OnboardingView: View {
     @Binding var isOnboarding: Bool
     @State private var currentPage = 0
+    @State private var isAnimating = false // New state variable for animation control
     
     private let githubURL = "https://github.com/ZapNotesApp/ZapNotesApp"
     private let licenseURL = "https://github.com/ZapNotesApp/ZapNotesApp/blob/main/LICENSE"
@@ -48,53 +49,57 @@ struct OnboardingView: View {
                                 .scaledToFit()
                                 .frame(width: 100, height: 100)
                                 .cornerRadius(22)
-                        } else {
-                            Image(systemName: pages[currentPage].iconSystemName ?? "")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 60, height: 60)
+                        } else if let iconName = pages[currentPage].iconSystemName {
+                            Image(systemName: iconName)
+                                .font(.system(size: 80))
                                 .foregroundColor(.blue)
                         }
                     }
-                    .padding(.bottom, 20)
                     
                     // Title and Description
-                    Text(pages[currentPage].title)
-                        .font(.system(size: 28, weight: .bold))
-                        .multilineTextAlignment(.center)
-                    
-                    if !pages[currentPage].description.isEmpty {
-                        Text(pages[currentPage].description)
-                            .font(.body)
+                    VStack(spacing: 16) {
+                        Text(pages[currentPage].title)
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
                             .multilineTextAlignment(.center)
-                            .padding(.horizontal, 32)
-                            .foregroundColor(.secondary)
+                        
+                        if !pages[currentPage].description.isEmpty {
+                            Text(pages[currentPage].description)
+                                .font(.body)
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, 40)
+                        }
                     }
                     
-                    // Multi-modal Input UI
+                    // Multi-Modal Input Icons
                     if pages[currentPage].hasMultiModalInput {
-                        HStack(spacing: 20) {
-                            ForEach(["Text", "Photos", "Voice"], id: \.self) { type in
-                                VStack {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 16)
-                                            .fill(type == "Text" ? Color.green.opacity(0.2) :
-                                                  type == "Photos" ? Color.orange.opacity(0.2) :
-                                                  Color.blue.opacity(0.2))
-                                            .frame(width: 80, height: 80)
-                                        
-                                        Image(systemName: type == "Text" ? "text.alignleft" :
-                                                          type == "Photos" ? "photo" :
-                                                          "mic.fill")
-                                            .foregroundColor(type == "Text" ? .green :
-                                                            type == "Photos" ? .orange :
-                                                            .blue)
-                                            .font(.system(size: 30))
-                                    }
-                                    Text(type)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
+                        HStack(spacing: 40) {
+                            VStack(spacing: 8) {
+                                Image(systemName: "mic.fill")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.blue)
+                                Text("Voice")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            VStack(spacing: 8) {
+                                Image(systemName: "text.alignleft")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.green)
+                                Text("Text")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            VStack(spacing: 8) {
+                                Image(systemName: "camera.fill")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.orange)
+                                Text("Photo")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
                         }
                         .padding(.top, 20)
@@ -118,8 +123,13 @@ struct OnboardingView: View {
                     // Navigation Button
                     if currentPage == pages.count - 1 {
                         Button(action: {
-                            isOnboarding = false
-                            UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                isOnboarding = false
+                            }
+                            // Use a slight delay to ensure smooth animation completion
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+                            }
                         }) {
                             Text("Get Started")
                                 .font(.headline)
@@ -133,16 +143,12 @@ struct OnboardingView: View {
                         
                         HStack(spacing: 20) {
                             Button("GitHub") {
-                                if let url = URL(string: githubURL) {
-                                    UIApplication.shared.open(url)
-                                }
+                                openURL(githubURL)
                             }
                             Text("•")
                                 .foregroundColor(.secondary)
                             Button("License") {
-                                if let url = URL(string: licenseURL) {
-                                    UIApplication.shared.open(url)
-                                }
+                                openURL(licenseURL)
                             }
                         }
                         .font(.subheadline)
@@ -151,8 +157,16 @@ struct OnboardingView: View {
                         Button(action: {
                             // Guard to prevent index overflow with rapid taps on button
                             guard currentPage < pages.count - 1 else { return }
-                            withAnimation {
+                            // Additional guard to prevent multiple simultaneous animations
+                            guard !isAnimating else { return }
+                            
+                            isAnimating = true
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 currentPage += 1
+                            }
+                            // Reset animation flag after animation completes
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                isAnimating = false
                             }
                         }) {
                             Text("Next")
@@ -164,10 +178,31 @@ struct OnboardingView: View {
                                 .cornerRadius(14)
                         }
                         .padding(.horizontal, 32)
+                        .disabled(isAnimating) // Disable button during animation
                     }
                 }
                 .padding(.bottom, 40)
             }
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    /// Opens a URL with proper error handling
+    private func openURL(_ urlString: String) {
+        guard let url = URL(string: urlString) else {
+            print("⚠️ Invalid URL: \(urlString)")
+            return
+        }
+        
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url) { success in
+                if !success {
+                    print("⚠️ Failed to open URL: \(urlString)")
+                }
+            }
+        } else {
+            print("⚠️ Cannot open URL: \(urlString)")
         }
     }
 }
